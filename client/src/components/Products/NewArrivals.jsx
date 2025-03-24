@@ -86,9 +86,6 @@ const newArrivals = [
 
 const NewArrivals = () => {
   const scrollRef = useRef(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [startX, setStartX] = useState(0);
-  const [scrollLeft, setScrollLeft] = useState(false);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
 
@@ -106,6 +103,9 @@ const NewArrivals = () => {
 
       setCanScrollLeft(leftScroll > 0);
       setCanScrollRight(rightScrollable);
+
+console.log(leftScroll, container.scrollWidth, container.clientWidth);
+
     }
   };
 
@@ -113,10 +113,8 @@ const NewArrivals = () => {
     const container = scrollRef.current;
     if (container) {
       container.addEventListener("scroll", updateScrollButtons);
-      
     }
-    
-  }, []);
+  });
   
   
   return (
@@ -134,7 +132,7 @@ const NewArrivals = () => {
         </button>
 
         <button onClick={() => scroll("right")} >
-          <FiChevronRight className={`text-4xl rounded text-gray-600 cursor-pointer border border-solid ${!canScrollRight ? "bg-gray-300 text-white" : ""}`} />
+          <FiChevronRight className={`text-4xl rounded text-gray-600 cursor-pointer border border-solid ${canScrollRight ? "bg-white text-black" : " bg-gray-200 text-gray-400 "}`} />
         </button>
       </div>
       <div
