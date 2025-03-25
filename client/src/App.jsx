@@ -4,6 +4,7 @@ import Home from "../src/components/Pages/Home";
 import Login from "./components/Pages/Login";
 import Register from "./components/Pages/Register"; 
 import { Toaster } from 'sonner';
+import Profile from "./components/Pages/Profile";
 
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
         <Route index element={<Home />} />
         <Route path="login" element={<Login />} />
         <Route path="register" element={<Register />} />
+        <Route path="Profile" element={<Profile />} />
 
       </Route>
     </Routes>
