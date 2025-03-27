@@ -27,7 +27,7 @@ const Navbar = () => {
         </div>
 
         <div className="flex justify-between items-center space-x-6 font-bold text-1xl">
-          <Link className="text-gray-600 hover:text-gray-800 hidden md:block">
+          <Link to="/Collection/all" className="text-gray-600 hover:text-gray-800 hidden md:block">
             MEN
           </Link>
           <Link className="text-gray-600 hover:text-gray-800 hidden md:block">
