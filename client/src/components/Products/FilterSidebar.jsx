@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
 
 const FilterSidebar = () => {
   const [searchParams, setsearchParams] = useSearchParams({});
+  const navigate = useNavigate();
   const [filter, setFilter] = useState({
     category: "",
     gender: "",
@@ -63,6 +65,38 @@ const FilterSidebar = () => {
     setPriceRange([prams.minPrice || 0, prams.maxPrice || 100]);
   }, [searchParams]);
 
+  
+const updateSearchParams = (newfilters) => {
+  const params = new URLSearchParams();
+  Object.keys(newfilters).forEach((key) => {
+    if (Array.isArray(newfilters[key]) && newfilters[key].length) {
+      params.append(key, newfilters[key].join(","));
+    }
+    else {
+      params.append(key, newfilters[key]);
+    }
+
+  });
+  setsearchParams(params);
+  navigate(`?${params.toString()}`);
+};
+
+
+
+  const handleFilterChange = (e) => {
+    const { name, value, checked } = e.target;
+    let newfilter = { ...filter };
+    if (checked) {
+        newfilter[name] = [...newfilter[name], value];
+
+    } else{newfilter[name] =newfilter[name].filter((item)=>item!==value)
+
+    }
+    console.log(newfilter)
+    setFilter(newfilter);
+    updateSearchParams(newfilter);
+  }
+
   return (
     <div className="p-4">
       <h2 className="text-2xl font-semibold mb-4"> Filters</h2>
@@ -77,6 +111,8 @@ const FilterSidebar = () => {
                 name="category"
                 value={category}
                 className="size-4 mt-2"
+                onChange={handleFilterChange}
+                
                 
               />
               <label className="ml-2 text-lg">{category}</label>
@@ -95,6 +131,7 @@ const FilterSidebar = () => {
                 name="gender"
                 value={genders}
                 className="size-4 mt-2"
+                onChange={handleFilterChange}
               />
               <label className="ml-2 text-lg">{genders}</label>
             </div>
@@ -106,7 +143,7 @@ const FilterSidebar = () => {
         <label className=" text-xl">colors </label>
         <div className="flex flex-wrap ">
           {colors.map((color) => (
-            <button key={color}  name="color"  style={{ backgroundColor: color.toLowerCase() }} className=" mr-5 mt-2 w-8 h-8 rounded-full border-2 flex items-center justify-center">
+            <button key={color}  name="color" onChange={handleFilterChange}  style={{ backgroundColor: color.toLowerCase() }} className=" mr-5 mt-2 w-8 h-8 rounded-full border-2 flex items-center justify-center">
             </button>
           ))}
         </div>
@@ -120,8 +157,9 @@ const FilterSidebar = () => {
               <input
                 type="checkbox"
                 name="size"
-                value={genders}
+                value={sizes}
                 className="size-4 focus:ring-blue-400 border-gray-300"
+                onChange={handleFilterChange}
               />
               <label className="ml-2 mt-1 text-lg ">{sizes}</label>
             </div>
@@ -134,15 +172,16 @@ const FilterSidebar = () => {
       <div className="mb-4 ">
         <label className=" text-xl ">brands </label>
         <div className="flex flex-col mt-2">
-          {brands.map((brands) => (
-            <div key={brands} className="flex items-center ">
+          {brands.map((brand) => (
+            <div key={brand} className="flex items-center ">
               <input
                 type="checkbox"
                 name="brand"
-                value={brands}
+                value={brand}
                 className="size-4 "
+                onChange={handleFilterChange}
               />
-              <label className="ml-2 mt-1 text-lg focus:ring-blue-400 border-gray-300">{brands}</label>
+              <label className="ml-2 mt-1 text-lg focus:ring-blue-400 border-gray-300">{brand}</label>
             </div>
           ))}
         </div>
