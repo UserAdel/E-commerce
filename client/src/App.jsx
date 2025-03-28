@@ -6,7 +6,10 @@ import Register from "./components/Pages/Register";
 import { Toaster } from 'sonner';
 import Profile from "./components/Pages/Profile";
 import CollectionPage from "./components/Pages/CollectionPage";
-
+import ProductDetails from "./components/Products/ProductDetails";
+import Checkout from "./components/Cart/checkout";    
+import OrderConfirmationPage from "./components/Pages/OrderConfirmationPage";
+import OrderConfirmation from "./components/Pages/OrderConfirmationPage";
 
 function App() {
   return (
@@ -19,6 +22,10 @@ function App() {
         <Route path="register" element={<Register />} />
         <Route path="Profile" element={<Profile />} />
         <Route path="Collection/:collection" element={<CollectionPage />} />
+        <Route path="Product/:id" element={<ProductDetails />} />
+        <Route path="Checkout" element={<Checkout />} />
+        <Route path="OrderConfirmtion" element={<OrderConfirmationPage />} />
+
 
 
       </Route>
