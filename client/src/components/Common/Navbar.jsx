@@ -42,7 +42,7 @@ const Navbar = () => {
         </div>
 
         <div className="flex justify-between items-center space-x-3">
-          <Link>
+          <Link to="/MyOrdePage">
             <HiOutlineUser className="w-6 h-6" />
           </Link>
           <button className="relative" onClick={toggleCart}>

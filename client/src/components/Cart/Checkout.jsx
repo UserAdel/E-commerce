@@ -22,7 +22,7 @@ const cart = {
 };
 
 const Checkout = () => {
-//  const navigate = useNavigate();
+ const navigate = useNavigate();
   const [checkoutid, setCheckoutid] = useState(null);
   const [shippingAddress, setShippingAddress] = useState({
     firstname: "",
@@ -38,7 +38,7 @@ const Checkout = () => {
     e.preventDefault();
     console.log("Shipping address:", shippingAddress);
     setCheckoutid(1234);
-    // navigate("/payment");
+    navigate("/OrderConfirmtion");
   };
 
   return (
