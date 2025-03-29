@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 
 const CartDrawer = ({ isCartOpen, toggleCart }) => {
 const navigate = useNavigate();
-  const handelcheckout = () => {
+  const handleCheckout = () => {
     toggleCart();
     navigate("/checkout");
   }
@@ -30,7 +30,7 @@ const navigate = useNavigate();
       </div>
 
       <div className="bg-white p-4 sticky bottom-0">
-        <button onClick={handelcheckout} className="w-full bg-black text-white rounded-lg py-3 font-semibold hover:bg-gray-800">
+        <button onClick={handleCheckout} className="w-full bg-black text-white rounded-lg py-3 font-semibold hover:bg-gray-800">
           Checkout
         </button>
         <p className="text-sm tracking-tighter text-gray-500 mt-2 text-center">

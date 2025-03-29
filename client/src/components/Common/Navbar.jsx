@@ -42,13 +42,18 @@ const Navbar = () => {
         </div>
 
         <div className="flex justify-between items-center space-x-3">
+          
+        <Link to="/admin" className=" block bg-black rounded text-white px-2 text-sm py-1 hover:bg-gray-800">
+            Admin
+          </Link>
+          
           <Link to="/my-orders">
             <HiOutlineUser className="w-6 h-6" />
           </Link>
           <button className="relative" onClick={toggleCart}>
             <HiOutlineShoppingBag className="w-6 h-6" />
             <span className="rounded-full bg-red-800 px-2 py-0.5 absolute -top-1 -right-1 text-xs w-4 h-4 flex items-center justify-center text-white">
-              0
+              5
             </span>
           </button>
           <div className="overflow-hidden">

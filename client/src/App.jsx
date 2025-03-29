@@ -9,9 +9,12 @@ import CollectionPage from "./components/Pages/CollectionPage";
 import ProductDetails from "./components/Products/ProductDetails";
 import Checkout from "./components/Cart/checkout";    
 import OrderConfirmationPage from "./components/Pages/OrderConfirmationPage";
-import OrderConfirmation from "./components/Pages/OrderConfirmationPage";
 import MyOrderPage from "./components/Pages/MyOrderPage";
 import OrderDetailsPage from "./components/Pages/OrderDetailsPage";
+import AdminLayout from "./components/Admin/AdminLayout";
+
+
+
 
 function App() {
   return (
@@ -29,9 +32,10 @@ function App() {
         <Route path="OrderConfirmtion" element={<OrderConfirmationPage />} />
         <Route path="order/:id" element={<OrderDetailsPage />} />
         <Route path="my-orders" element={<MyOrderPage />} />
+      </Route>
 
-
-
+      <Route path="admin" element={<AdminLayout />} > 
+      
       </Route>
     </Routes>
     </>
