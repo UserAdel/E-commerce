@@ -27,8 +27,8 @@ function App() {
         <Route path="Product/:id" element={<ProductDetails />} />
         <Route path="Checkout" element={<Checkout />} />
         <Route path="OrderConfirmtion" element={<OrderConfirmationPage />} />
-        <Route path="MyOrdePage" element={<MyOrderPage />} />
         <Route path="order/:id" element={<OrderDetailsPage />} />
+        <Route path="my-orders" element={<MyOrderPage />} />
 
 
 

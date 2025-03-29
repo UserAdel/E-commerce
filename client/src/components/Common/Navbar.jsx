@@ -42,7 +42,7 @@ const Navbar = () => {
         </div>
 
         <div className="flex justify-between items-center space-x-3">
-          <Link to="/MyOrdePage">
+          <Link to="/my-orders">
             <HiOutlineUser className="w-6 h-6" />
           </Link>
           <button className="relative" onClick={toggleCart}>
@@ -55,8 +55,7 @@ const Navbar = () => {
             <SearchBar />
           </div>
           <button onClick={toggleNavDrawer}>
-            {" "}
-            {/* Added onClick handler */}
+        
             <HiBars3BottomRight className="w-6 h-6 md:hidden" />
           </button>
         </div>
