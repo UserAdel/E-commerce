@@ -55,12 +55,12 @@ const AdminHomePage = () => {
       <div className="mt-6">
         <h2 className="text-2xl font-bold mb-4"> Recent Orders</h2>
         <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-200 text-gray-700 ">
-              <th className="bg-gray-200 text-gray-700">ORDER ID</th>
-              <th className="bg-gray-200 text-gray-700">USER</th>
-              <th className="bg-gray-200 text-gray-700">TOTAL PRICE</th>
-              <th className="bg-gray-200 text-gray-700">STATUS</th>
+          <table className="w-full  ">
+            <thead className="bg-gray-200 text-gray-700  ">
+              <th className="bg-gray-200 text-gray-700 px-4 py-2">ORDER ID</th>
+              <th className="bg-gray-200 text-gray-700 px-4 py-2">USER</th>
+              <th className="bg-gray-200 text-gray-700 px-4 py-2">TOTAL PRICE</th>
+              <th className="bg-gray-200 text-gray-700 px-4 py-2">STATUS</th>
             </thead>
 
             <tbody className="bg-white shadow-md text-center text-gray-700">
