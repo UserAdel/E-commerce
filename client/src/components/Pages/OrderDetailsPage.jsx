@@ -113,7 +113,7 @@ const OrderDetailsPage = () => {
                       />
                       <Link
                         to={`/product/${item.productId}`}
-                        className="text-blue-500 hover:underline"
+                        className="text-blue-500 hover:underline  mr-10 md:mr-0"
                       >
                         {item.name}
                       </Link>

@@ -105,43 +105,46 @@ const UserManagement = () => {
           </form>
         </div>
 
-        <table className="w-full text-center shadow-md mt-12">
-          <thead className="bg-gray-200 text-lg font-bold">
-            <tr>
-              <th className="px-4 py-2">Name</th>
-              <th className="px-4 py-2">Email</th>
-              <th className="px-4 py-2">Role</th>
-              <th className="px-4 py-2">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((user) => (
-              <tr key={user.email} className="border-b hover:bg-gray-100">
-                <td className="px-4 py-2">{user.name}</td>
-                <td className="px-4 py-2">{user.email}</td>
-                <td className="px-4 py-2">
-                  <select
-                    name="role"
-                    className="py-1 border"
-                    onChange={(e) => handleRoleChange(user._id, e.target.value)}
-                    value={user.role}
-                  >
-                    <option value="customer">Customer</option>
-                    <option value="admin">Admin</option>
-                  </select>
-                </td>
-                <td className="px-4 py-2">
-                  <button
-                    onClick={(e) => handleDeleteUser(user._id)}
-                    className="bg-red-500 text-white py-1 px-3 rounded hover:bg-red-600"
-                  >
-                    Delete
-                  </button>
-                </td>
+        {/* Added overflow container around the table */}
+        <div className="overflow-x-auto max-h-[500px] overflow-y-auto mt-12 shadow-md">
+          <table className="w-full text-center">
+            <thead className="bg-gray-200 text-lg font-bold sticky top-0">
+              <tr>
+                <th className="px-4 py-2">Name</th>
+                <th className="px-4 py-2">Email</th>
+                <th className="px-4 py-2">Role</th>
+                <th className="px-4 py-2">Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {users.map((user) => (
+                <tr key={user.email} className="border-b hover:bg-gray-100">
+                  <td className="px-4 py-2">{user.name}</td>
+                  <td className="px-4 py-2">{user.email}</td>
+                  <td className="px-4 py-2">
+                    <select
+                      name="role"
+                      className="py-1 border"
+                      onChange={(e) => handleRoleChange(user._id, e.target.value)}
+                      value={user.role}
+                    >
+                      <option value="customer">Customer</option>
+                      <option value="admin">Admin</option>
+                    </select>
+                  </td>
+                  <td className="px-4 py-2">
+                    <button
+                      onClick={(e) => handleDeleteUser(user._id)}
+                      className="bg-red-500 text-white py-1 px-3 rounded hover:bg-red-600"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

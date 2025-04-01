@@ -126,7 +126,7 @@ console.log(leftScroll, container.scrollWidth, container.clientWidth);
         keep your wardrobe on the cutting edge of fashion.
       </p>
 
-      <div className="absolute justify-between right-0 top-16 flex space-x-2">
+      <div className="absolute justify-between right-0 top-32 flex md:top-16 space-x-2">
         <button onClick={() => scroll("left")} disabled={!canScrollLeft}>
           <FiChevronLeft className={`text-4xl rounded text-gray-600 cursor-pointer border border-solid ${!canScrollLeft ? "bg-gray-300 text-white" : ""}`} />
         </button>

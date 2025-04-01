@@ -7,7 +7,7 @@ import { Toaster } from 'sonner';
 import Profile from "./components/Pages/Profile";
 import CollectionPage from "./components/Pages/CollectionPage";
 import ProductDetails from "./components/Products/ProductDetails";
-import Checkout from "./components/Cart/checkout";    
+import Checkout from "./components/Cart/Checkout";    
 import OrderConfirmationPage from "./components/Pages/OrderConfirmationPage";
 import MyOrderPage from "./components/Pages/MyOrderPage";
 import OrderDetailsPage from "./components/Pages/OrderDetailsPage";

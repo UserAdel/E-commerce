@@ -38,7 +38,7 @@ sku: "1234",
               <td className="px-6 py-4">{product.name}</td>
               <td className="px-6 py-4">{product.price}</td>
               <td className="px-6 py-4">{product.sku}</td>
-              <td className="px-6 py-4 ">
+              <td className="px-6 py-4 flex ">
                 <Link to={`${products._id}/edit`} className="text-white hover:bg-yellow-600 bg-yellow-500 py-1 px-2 rounded ">Edit</Link>
                 <button onClick={()=>HandleDelete(product._id)} className="text-white bg-red-500 hover:bg-red-600 py-1 px-2 rounded ml-3">Delete</button>
               </td>
