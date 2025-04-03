@@ -31,6 +31,12 @@ userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) {
     return next();
   }
+  
+  if (this.password.length < 6) {
+    const error = new Error('Password must be at least 6 characters');
+    return next(error);
+  }
+  
   const salt = await bcryptjs.genSalt(10);
   this.password = await bcryptjs.hash(this.password, salt);
   next();

@@ -2,7 +2,6 @@ const dotenv = require("dotenv");
 const express = require("express");
 const cors = require("cors");
 const connectDB = require("./config/db");
-const userRoutes = require("./Routes/userRoutes");
 
 
 dotenv.config();
@@ -26,8 +25,7 @@ connectDB();
 //API Routes
 
 app.use("/api/users", userRoutes);
-
-
+app.use("/api/products", productRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
