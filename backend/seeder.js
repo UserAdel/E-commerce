@@ -13,7 +13,7 @@ const seedData = async () => {
     await User.deleteMany(); // Fixed capitalization
     
     const createdUser = await User.create({
-      username: "Admin", // correct field matching your schema
+      name: "Admin", // correct field matching your schema
       email: "admin@example.com",
       password: "123456",
       role: "admin",

@@ -4,7 +4,6 @@ const User = require('../models/User');
 const protect = async (req, res, next) => {
   let token;
 
-  token = req.cookies["jwt-netflix"];
 
   if (req.headers && req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     try {
