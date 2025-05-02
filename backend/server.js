@@ -5,27 +5,65 @@ const connectDB = require("./config/db");
 const userRoutes = require('./routes/userRoutes'); 
 const productRoutes = require('./routes/productRoute');
 const cartRoutes = require('./routes/cartRoutes'); 
-const checkoutRoute=require('./routes/checkoutRoutes');
+const checkoutRoute = require('./routes/checkoutRoutes');
+const orderRoutes = require('./routes/orderRoutes');
+const uploadRoutes = require('./routes/uploadRoutes')
+const subscribeRoutes = require('./routes/subscribeRoutes')
+
+
+// Load environment variables
 dotenv.config();
 
+// Create Express app
 const app = express();
+
+// Middleware
 app.use(cors());
 app.use(express.json());
 
+// Basic route
 app.get("/", (req, res) => {
-  res.send("Hello World!");
+  res.send("API is running...");
 });
 
-const PORT = process.env.PORT || 3000;
-connectDB();
-
-//API Routes
-
+// API Routes
 app.use("/api/users", userRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes); 
-app.use("/api/checkout",checkoutRoute);
+app.use("/api/checkout", checkoutRoute);
+app.use("/api/orders", orderRoutes);
+app.use("/api/upload", uploadRoutes);
+app.use("/api/subscribe",subscribeRoutes);
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({
+    success: false,
+    error: err.message || 'Server Error'
+  });
 });
+
+const PORT = process.env.PORT || 3000;
+
+// Connect to database and start server
+const startServer = async () => {
+  try {
+    await connectDB();
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
+};
+
+process.on('unhandledRejection', (err) => {
+  console.error('Unhandled Promise Rejection:', err);
+  process.exit(1);
+});
+
+// Start the server
+startServer();
+

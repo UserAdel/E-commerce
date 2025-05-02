@@ -1,44 +1,37 @@
 const mongoose = require("mongoose");
-const cartItemSchema = new mongoose.Schema({
-  productId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Product",
-    required: true,
-  },
-  name: {
-    type: String,
-  },
-  image: {
-    type: String,
-  },
-  price: {
-    type: String,
-  },
-  size: { type: String },
-  color: { type: String },
-  quantity: {
-    type: Number,
-    default: 1,
-  },
-}, 
-{ _id: false }
-);
 
 const cartSchema = new mongoose.Schema({
-    userId: {
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
+  guestId: {
+    type: String,
+  },
+  products: [
+    {
+      productId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+        ref: "Product",
         required: true,
-    },
-    guestId: {
-        type: String,
-    },
-    products: [cartItemSchema],
-    totalPrice: {
+      },
+      name: String,
+      image: String,
+      price: Number,
+      size: String,
+      color: String,
+      quantity: {
         type: Number,
-        required: true, 
-        default: 0,
+        default: 1,
+      },
     },
-    }, { timestamps: true });
+  ],
+  totalPrice: {
+    type: Number,
+    default: 0,
+  },
+}, { timestamps: true });
 
-module.exports = mongoose.model("Cart", cartSchema);
+// Check if the model is already compiled
+module.exports = mongoose.models.Cart || mongoose.model("Cart", cartSchema);

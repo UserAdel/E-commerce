@@ -1,3 +1,4 @@
+// Import required modules and models
 const express = require("express");
 const Checkout = require("../models/checkout");
 const Cart = require("../models/cart");
@@ -6,17 +7,25 @@ const Order = require("../models/order");
 const {protect} = require("../middleware/authMiddleware");
 const router = express.Router();
 
-// Create new checkout
+/**
+ * Create a new checkout
+ * This route handles the initial checkout process
+ * It creates a new checkout record with the user's cart items
+ */
 router.post("/", protect, async(req, res) => {
-    const {checkoutItems, shippingAddress, paymentMethod, totalPrice} = req.body;
-    if(!checkoutItems || checkoutItems.length === 0) {
+    // Destructure required fields from request body
+    const {CheckoutItems, shippingAddress, paymentMethod, totalPrice} = req.body;
+    
+    // Validate that there are items in the cart
+    if(!CheckoutItems || CheckoutItems.length === 0) {
         return res.status(400).json({message: "No items in cart"});
     }   
 
     try {
+        // Create a new checkout record in the database
         const newCheckout = await Checkout.create({
             user: req.user._id,
-            checkoutItems: checkoutItems,
+            CheckoutItems: CheckoutItems,
             shippingAddress,
             paymentMethod,
             totalPrice,
@@ -32,15 +41,23 @@ router.post("/", protect, async(req, res) => {
     }
 });
 
-// Update payment status
+/**
+ * Update payment status
+ * This route handles the payment confirmation process
+ * It updates the checkout status when payment is received
+ */
 router.put("/:id/pay", protect, async(req, res) => {
+    // Get payment details from request body
     const {paymentStatus, paymentDetails} = req.body;
 
     try {
+        // Find the checkout by ID
         const checkout = await Checkout.findById(req.params.id);
         if(!checkout) {
             return res.status(404).json({message: "Checkout not found"});
         }
+
+        // Update payment status if payment is confirmed
         if(paymentStatus === "paid") {
             checkout.isPaid = true;
             checkout.paymentStatus = paymentStatus;
@@ -58,18 +75,25 @@ router.put("/:id/pay", protect, async(req, res) => {
     }
 });
 
-// Finalize checkout and create order
+/**
+ * Finalize checkout and create order
+ * This route completes the checkout process by creating an order
+ * It also clears the user's cart after successful order creation
+ */
 router.post("/:id/finalize", protect, async(req, res) => {
     try {
+        // Find the checkout by ID
         const checkout = await Checkout.findById(req.params.id);
         if(!checkout) {
             return res.status(404).json({message: "Checkout not found"});
         }
 
+        // Check if checkout is paid and not already finalized
         if(checkout.isPaid && !checkout.isFinalized) {
+            // Create a new order from the checkout details
             const finalOrder = await Order.create({
                 user: checkout.user,
-                orderItems: checkout.checkoutItems,
+                orderItems: checkout.CheckoutItems,
                 shippingAddress: checkout.shippingAddress,
                 paymentMethod: checkout.paymentMethod,
                 totalPrice: checkout.totalPrice,
@@ -80,11 +104,12 @@ router.post("/:id/finalize", protect, async(req, res) => {
                 paymentDetails: checkout.paymentDetails
             });
             
+            // Mark checkout as finalized
             checkout.isFinalized = true;
             checkout.finalizedAt = Date.now();
             await checkout.save();
             
-            // Clear the user's cart
+            // Clear the user's cart after successful order creation
             await Cart.findOneAndDelete({user: checkout.user});
             
             res.status(201).json(finalOrder);
@@ -99,4 +124,5 @@ router.post("/:id/finalize", protect, async(req, res) => {
     }
 });
 
+// Export the router for use in the main application
 module.exports = router;
