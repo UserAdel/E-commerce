@@ -4,8 +4,8 @@ const cors = require("cors");
 const connectDB = require("./config/db");
 const userRoutes = require('./routes/userRoutes'); 
 const productRoutes = require('./routes/productRoute');
-const cartRoutes = require('./routes/cartRoutes'); // Fixed: cartRoutes not cartRoute
-
+const cartRoutes = require('./routes/cartRoutes'); 
+const checkoutRoute=require('./routes/checkoutRoutes');
 dotenv.config();
 
 const app = express();
@@ -24,6 +24,7 @@ connectDB();
 app.use("/api/users", userRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes); 
+app.use("/api/checkout",checkoutRoute);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
