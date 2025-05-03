@@ -9,6 +9,12 @@ const checkoutRoute = require('./routes/checkoutRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const uploadRoutes = require('./routes/uploadRoutes')
 const subscribeRoutes = require('./routes/subscribeRoutes')
+const adminRoutes = require('./routes/adminRoutes')
+const productAdminRoutes = require('./routes/productAdminRoutes')
+const ordersAdminRoutes = require('./routes/orderAdminRoutes.js')
+
+
+
 
 
 // Load environment variables
@@ -33,7 +39,12 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/checkout", checkoutRoute);
 app.use("/api/orders", orderRoutes);
 app.use("/api/upload", uploadRoutes);
-app.use("/api/subscribe",subscribeRoutes);
+app.use("/api",subscribeRoutes);
+//admin routes
+app.use("/api/admin/users",adminRoutes)
+
+app.use("/api/admin/product",productAdminRoutes)
+app.use("/api/admin/orders",ordersAdminRoutes)
 
 // Error handling middleware
 app.use((err, req, res, next) => {
