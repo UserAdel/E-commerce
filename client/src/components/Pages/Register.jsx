@@ -2,16 +2,19 @@ import React from "react";
 import login from "../../assets/login.webp";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { registerUser }  from "../../redux/slices/authSlice";
+import { useDispatch } from "react-redux";
 
 const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
+  const dispatch = useDispatch();
+
 
   const submitHanler = (e) => {
     e.preventDefault();
-    console.log("submitted");
-    console.log(email, password, username);
+    dispatchEvent(registerUser({email,password,username}));
   };
   return (
     <div className="flex">

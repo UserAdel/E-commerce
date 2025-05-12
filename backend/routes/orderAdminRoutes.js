@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.get("/", protect, admin, async (req, res) => {
     try {
-      const orders = await Order.find({}).populate("user", "name email");
+      const orders = await orders.find({}).populate("user", "name email");
       res.json(orders);
     } catch (error) {
       console.error(error);
@@ -15,7 +15,7 @@ router.get("/", protect, admin, async (req, res) => {
   });
   router.put("/:id", protect, admin, async (req, res) => {
     try {
-      const order = await Order.findById(req.params.id);
+      const order = await order.findById(req.params.id);
       if (order) {
         order.status = req.body.status || order.status;
         order.isDelivered =
@@ -37,7 +37,7 @@ router.get("/", protect, admin, async (req, res) => {
   
   router.delete("/:id", protect, admin, async (req, res) => {
     try {
-      const order = await Order.findById(req.params.id);
+      const order = await order.findById(req.params.id);
       if (order) {
         await order.deleteOne();
         res.json({ message: "Order removed" });
