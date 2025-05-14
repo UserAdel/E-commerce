@@ -1,10 +1,10 @@
 // Import required modules and models
 const express = require("express");
 const Checkout = require("../models/checkout");
-const Cart = require("../models/cart");
-const Product = require("../models/product");
-const Order = require("../models/order");
-const {protect} = require("../middleware/authMiddleware");
+const Cart = require("../models/Cart");
+const Product = require("../models/Product");
+const Order = require("../models/Order");
+const {protect} = require("../middleware/Authmiddleware.js");
 const router = express.Router();
 
 /**
