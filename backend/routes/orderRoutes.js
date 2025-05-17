@@ -4,7 +4,17 @@ const {protect} = require("../middleware/Authmiddleware.js");
 
 const router=express.Router();
 
+router.get("/my-orders", protect, async(req, res) => {
+    try {
+        const order = await order.find({userId: req.user._id}).sort({createdAt: -1});
+        
+        res.status(200).json(order);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({message: "Internal server error"});
+    }
 
+})  
 
 router.get("/:id", protect, async(req, res) => {
     

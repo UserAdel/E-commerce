@@ -7,8 +7,39 @@ import {
   
 export const createCheckout = createAsyncThunk("checkout/createCheckout", async (checkoutData,{rejectWithValue}) =>{
     try {
-        
+       const response = await axios.post(`${VITE_VITE_BACKEND_URL}/api/checkout`, checkoutData, {
+         headers: {
+           authorization: `Bearer ${localStorage.getItem("userToken")}`
+         }
+       });
+       return response.data;
     } catch (error) {
-        
+        return rejectWithValue(error.response.data.message || "An error occurred");
     }
 });
+
+const checkoutSlice =createSlice({
+  name:"checkout",
+  initialState:{
+    checkout:null,
+    loading:false,
+    error:null,
+  },
+  reducers:{ },
+  extraReducers:(builder)=>{
+    builder.addCase(createCheckout.pending,(state)=>{
+      state.loading=true;
+      state.error=null;
+    })
+    builder.addCase(createCheckout.fulfilled,(state,action)=>{
+      state.loading=false;
+      state.checkout=action.payload;
+    })
+    builder.addCase(createCheckout.rejected,(state,action)=>{ 
+      state.loading=false;
+      state.error=action.payload.message ;
+    })
+  }
+})
+
+export default checkoutSlice.reducer;
