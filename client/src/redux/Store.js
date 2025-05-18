@@ -4,12 +4,15 @@ import {prodctReducer}from "./slices/productSlice";
 import {cartReducer} from "./slices/cartSlice";
 import {checkoutReducer} from "./slices/checkoutSlice";
 import {orderReducer} from "./slices/orderSlice"
+import {adminReducer} from "./slices/adminSlice"
+
 const store = configStore({
   reducer: {
     auth: authReducer,
     product:prodctReducer,
     cart:cartReducer,
-    checkout:checkoutReducer
+    checkout:checkoutReducer,
     order:orderReducer,
+    admin:adminReducer
   },
 });
