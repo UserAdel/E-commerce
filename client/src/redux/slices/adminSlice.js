@@ -5,7 +5,7 @@ import {
   import axios from "axios";
 
 
-  export const fetchUsers = createAsyncThunk("admin/fetchUsers",async(_,{rejectWithValue})=>{
+  export const fetchUsers = createAsyncThunk("admin/fetchUsers",async(_,{})=>{
     try {
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/admin/users`,{
             headers:{
