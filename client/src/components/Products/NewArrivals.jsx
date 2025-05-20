@@ -3,88 +3,29 @@ import { FiChevronLeft } from "react-icons/fi";
 import { FiChevronRight } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import { useRef, useState, useEffect } from "react";
+import axios from "axios";
 
-const newArrivals = [
-  {
-    _id: "1",
-    name: "Stylish Jacket",
-    price: 120,
-    images: [
-      {
-        url: "https://picsum.photos/500/500?random=1",
-        altText: "Stylish Jacket",
-      },
-    ],
-  },
-  {
-    _id: "2",
-    name: "Casual Sweater",
-    price: 85,
-    images: [
-      {
-        url: "https://picsum.photos/500/500?random=2",
-        altText: "Casual Sweater",
-      },
-    ],
-  },
-  {
-    _id: "3",
-    name: "Denim Jeans",
-    price: 95,
-    images: [
-      {
-        url: "https://picsum.photos/500/500?random=3",
-        altText: "Denim Jeans",
-      },
-    ],
-  },
-  {
-    _id: "4",
-    name: "Premium T-Shirt",
-    price: 45,
-    images: [
-      {
-        url: "https://picsum.photos/500/500?random=4",
-        altText: "Premium T-Shirt",
-      },
-    ],
-  },
-  {
-    _id: "5",
-    name: "Winter Coat",
-    price: 180,
-    images: [
-      {
-        url: "https://picsum.photos/500/500?random=5",
-        altText: "Winter Coat",
-      },
-    ],
-  },
-  {
-    _id: "6",
-    name: "Formal Blazer",
-    price: 150,
-    images: [
-      {
-        url: "https://picsum.photos/500/500?random=6",
-        altText: "Formal Blazer",
-      },
-    ],
-  },
-  {
-    _id: "7",
-    name: "Leather Jacket",
-    price: 200,
-    images: [
-      {
-        url: "https://picsum.photos/500/500?random=7",
-        altText: "Leather Jacket",
-      },
-    ],
-  },
-];
+
 
 const NewArrivals = () => {
+
+
+  const [newArrivals,setnewArrivals]=useState([]);
+  
+  useEffect(()=>{
+    const fetchnewArrivals=async()=>{
+      try {
+        const response=await axios.get(`http://localhost:9000/api/products/new-arrivals`)
+        setnewArrivals(response.data);
+        console.log(response.data);
+      } catch (error) {
+        console.error(error);s
+      }
+    }
+    fetchnewArrivals();
+  });
+
+
   const scrollRef = useRef(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
@@ -114,7 +55,7 @@ console.log(leftScroll, container.scrollWidth, container.clientWidth);
     if (container) {
       container.addEventListener("scroll", updateScrollButtons);
     }
-  });
+  },[newArrivals]);
   
   
   return (
