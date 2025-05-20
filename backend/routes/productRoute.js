@@ -3,6 +3,48 @@ const Product = require("../models/Product");
 const { protect, admin } = require("../middleware/Authmiddleware");
 const router = express.Router();
 
+
+
+
+
+
+router.get("/new-arrival", async (req, res) => {
+  try {
+    const newArrivals = await Product.find()
+      .sort({ createdAt: -1 })
+      .limit(8);
+    
+    if (newArrivals) {
+      res.status(200).json(newArrivals);
+    } else {
+      res.status(404).json({ message: "No products found" });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+});
+
+
+router.get("/best-seller", async (req, res) => {
+  try {
+    const bestSellers = await Product.find({})
+      .sort({ rating: -1 })
+      .limit(4);
+    
+    if (bestSellers) {
+      res.status(200).json(bestSellers);
+    } else {
+      res.status(404).json({ message: "No products found" });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+});
+
+
+
 router.post("/", protect, admin, async (req, res) => {
   try {
     const {
@@ -212,24 +254,6 @@ router.get("/", async (req, res) => {
   }
 });
 
-
-router.get("/best-seller", async (req, res) => {
-  try {
-    const bestSellers = await Product.find({})
-      .sort({ rating: -1 })
-      .limit(4);
-    
-    if (bestSellers) {
-      res.status(200).json(bestSellers);
-    } else {
-      res.status(404).json({ message: "No products found" });
-    }
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server Error" });
-  }
-});
-
 router.get("/similar/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -253,22 +277,6 @@ router.get("/similar/:id", async (req, res) => {
 });
 
 
-router.get("/new-arrival", async (req, res) => {
-  try {
-    const newArrivals = await Product.find()
-      .sort({ createdAt: -1 })
-      .limit(8);
-    
-    if (newArrivals) {
-      res.status(200).json(newArrivals);
-    } else {
-      res.status(404).json({ message: "No products found" });
-    }
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server Error" });
-  }
-});
 
 
 

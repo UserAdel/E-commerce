@@ -15,15 +15,23 @@ const NewArrivals = () => {
   useEffect(()=>{
     const fetchnewArrivals=async()=>{
       try {
-        const response=await axios.get(`http://localhost:9000/api/products/new-arrivals`)
+        console.log('All env variables:', import.meta.env);
+        console.log('Backend URL:', import.meta.env.VITE_BACKEND_URL);
+        if (!import.meta.env.VITE_BACKEND_URL) {
+          throw new Error('Backend URL is not defined in environment variables');
+        }
+        const response=await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/products/new-arrival`)
         setnewArrivals(response.data);
-        console.log(response.data);
       } catch (error) {
-        console.error(error);s
+        console.error('Error fetching new arrivals:', error.message);
+        if (error.response) {
+          console.error('Response data:', error.response.data);
+          console.error('Response status:', error.response.status);
+        }
       }
     }
     fetchnewArrivals();
-  });
+  },[]);
 
 
   const scrollRef = useRef(null);
