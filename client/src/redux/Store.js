@@ -10,7 +10,7 @@ import adminProductReducer from "./slices/adminProductSlice";
 const store = configureStore({
   reducer: {
     auth: authReducer,
-    product: prodctReducer,
+    products: prodctReducer,
     cart: cartReducer,
     checkout: checkoutReducer,
     order: orderReducer,

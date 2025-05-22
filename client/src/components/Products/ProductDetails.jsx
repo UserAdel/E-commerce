@@ -1,62 +1,37 @@
 import React from "react";
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { toast } from "sonner";
 import ProductGrid from "./ProductGrid";
 import FeaturedCollection from "./FeaturedCollection";
+import { useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 
-const selectedProduct = {
-  name: "Stylish Jacket",
-  price: 120,
-  originalPrice: 150,
-  description: "This is a stylish Jacket perfect for any occasion",
-  brand: "FashionBrand",
-  material: "Leather",
-  sizes: ["S", "M", "L", "XL"],
-  colors: ["Red", "Black"],
-  images: [
-    {
-      url: "https://picsum.photos/500/500?random=1",
-      altText: "Stylish Jacket 1",
-    },
-    {
-      url: "https://picsum.photos/500/500?random=2",
-      altText: "Stylish Jacket 2",
-    },
-  ],
-};
 
-const similarProducts = [
-  {
-    _id: 1,
-    name: "Product 1",
-    price: 100,
-    images: [{ url: "https://picsum.photos/500/500?random=2" }],
-  },
-  {
-    _id: 2,
-    name: "Product 2",
-    price: 100,
-    images: [{ url: "https://picsum.photos/500/500?random=3" }],
-  },
-  {
-    _id: 3,
-    name: "Product 3",
-    price: 100,
-    images: [{ url: "https://picsum.photos/500/500?random=4" }],
-  }, {
-    _id: 4,
-    name: "Product 4",
-    price: 100,
-    images: [{ url: "https://picsum.photos/500/500?random=6" }],
-  },
-    ]
 
-const ProductDetails = () => {
+
+const ProductDetails = ({productId}) => {
+const {id}= useParams();
+const dispatch = useDispatch();
+const {selectedProduct,loading,error,similarProducts}=useSelector((state)=>state.products)
+
+const {userId,guestId}=useSelector((state)=>state.auth)
+
   const [mainImage, setMainImage] = useState(selectedProduct.images[0].url);
   const [selectedSizes, setselectedSizes] = useState(null);
   const [selectedColors, setselectedColors] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+
+
+const productFetchId= productId || id;
+
+useEffect(()=>{
+  if(productFetchId){
+    dispatch(fetchProductDetails(productFetchId));
+    dispatch(fetchSimilarProducts({id:productFetchId}))
+  }
+},[dispatch,productFetchId])
+
 
   const HandleFormSubmit = () => {
     if (!selectedSizes || !selectedColors) {
@@ -65,19 +40,39 @@ const ProductDetails = () => {
     }
     setIsButtonDisabled(true);
 
-    setTimeout(() => {
-      toast.success("Item added to cart", { duration: 1000 });
 
-      setIsButtonDisabled(false);
-    }, 500);
+    dispatch(
+      addToCart({
+        ProductId:ProductFetchId,
+        quantity,
+        size:selectedSizes,
+        color:selectedColors,
+        guestId,
+        userId:user?.id,
+      })
+    ).then(()=>{
+      toast.success("product added to the cart",{duration:1000});
+    })
+    .finally(()=>{setIsButtonDisabled(false)})
+
   };
+
+if(loading){
+  return <p>
+    loading...
+  </p>
+}
+if(error){
+  return <p>Error:{error}</p>
+}
 
   console.log(selectedColors);
   console.log(selectedSizes);
   console.log(quantity);
 
   return (
-    <div>
+    <div> 
+      {selectedProduct && (
       <div className="container mx-auto max-w-4xl pt-8 flex flex-col md:flex-row w-full">
         <div className=" hidden md:flex flex-col mx-4">
           {selectedProduct.images.map((image, index) => (
@@ -194,7 +189,9 @@ const ProductDetails = () => {
             </tbody>
           </table>
         </div>
-      </div>
+     
+      </div>)}
+      
       <div className="mt-20 max-w-5xl mx-auto">
         <h2 className="text-2xl text-center font-medium mb-4"> You May Also Like</h2>
         <ProductGrid products={similarProducts} />
