@@ -5,6 +5,8 @@ import ProductGrid from "./ProductGrid";
 import FeaturedCollection from "./FeaturedCollection";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { fetchProductDetails, fetchSimilarProducts } from "../../redux/slices/productSlice";
+import { addToCart } from "../../redux/slices/cartSlice";
 
 
 
@@ -14,9 +16,9 @@ const {id}= useParams();
 const dispatch = useDispatch();
 const {selectedProduct,loading,error,similarProducts}=useSelector((state)=>state.products)
 
-const {userId,guestId}=useSelector((state)=>state.auth)
+const {user,guestId}=useSelector((state)=>state.auth)
 
-  const [mainImage, setMainImage] = useState(selectedProduct.images[0].url);
+  const [mainImage, setMainImage] = useState("");
   const [selectedSizes, setselectedSizes] = useState(null);
   const [selectedColors, setselectedColors] = useState(null);
   const [quantity, setQuantity] = useState(1);
@@ -32,6 +34,11 @@ useEffect(()=>{
   }
 },[dispatch,productFetchId])
 
+useEffect(() => {
+  if (selectedProduct?.images?.[0]?.url) {
+    setMainImage(selectedProduct.images[0].url);
+  }
+}, [selectedProduct]);
 
   const HandleFormSubmit = () => {
     if (!selectedSizes || !selectedColors) {
@@ -43,12 +50,12 @@ useEffect(()=>{
 
     dispatch(
       addToCart({
-        ProductId:ProductFetchId,
+        productId: productFetchId,
         quantity,
-        size:selectedSizes,
-        color:selectedColors,
+        size: selectedSizes,
+        color: selectedColors,
         guestId,
-        userId:user?.id,
+        userId: user?.id,
       })
     ).then(()=>{
       toast.success("product added to the cart",{duration:1000});
@@ -194,7 +201,7 @@ if(error){
       
       <div className="mt-20 max-w-5xl mx-auto">
         <h2 className="text-2xl text-center font-medium mb-4"> You May Also Like</h2>
-        <ProductGrid products={similarProducts} />
+        <ProductGrid products={similarProducts} loading={loading} error={error} />
       </div>
       
     </div>

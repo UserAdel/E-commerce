@@ -3,10 +3,23 @@ import { FaFilter } from "react-icons/fa";
 import FilterSidebar from "../Products/FilterSidebar";
 import SortOptions from "../Products/SortOptions";
 import ProductGrid from "../Products/ProductGrid";
-
+import { useParams, useSearchParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";import { useDispatch, useSelector } from "react-redux";
 const CollectionPage = () => {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+const {collection} =useParams();
+const {searchParams} =useSearchParams();
+const dispatch =useDispatch();
+const {products,loading,error} =useSelector((state)=>state.products);
+const queryPrams =Object.fromEntries(searchParams);
+  //fetch products  
+  useEffect(()=>{
+    dispatch(fetchProducts({
+      ...queryPrams,
+      collection:collection,
+    }))
+  },[collection,dispatch,queryPrams])
+  
+  
   const sidebarRef = useRef(null);
   const [issidebarOpen, setSidebarOpen] = useState(false);
   

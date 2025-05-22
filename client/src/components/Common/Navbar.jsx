@@ -5,6 +5,7 @@ import { HiBars3BottomRight } from "react-icons/hi2";
 import SearchBar from "./SearchBar";
 import CartDrawer from "../Layout/CartDrawer";
 import { BiX } from "react-icons/bi";
+import { useSelector } from "react-redux";
 
 const Navbar = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -12,10 +13,13 @@ const Navbar = () => {
     setIsCartOpen(!isCartOpen);
   };
 
-  const [navDrawer, setNavDrawer] = useState(false); // Fixed "cont" to "const"
+  const [navDrawer, setNavDrawer] = useState(false);
   const toggleNavDrawer = () => {
     setNavDrawer(!navDrawer);
   };
+
+  const { cart } = useSelector((state) => state.cart);
+  const cartItemCount = cart?.products?.length || 0;
 
   return (
     <div className="container mx-auto py-1 relative">
@@ -42,8 +46,7 @@ const Navbar = () => {
         </div>
 
         <div className="flex justify-between items-center space-x-3">
-          
-        <Link to="/admin" className=" block bg-black rounded text-white px-2 text-sm py-1 hover:bg-gray-800">
+          <Link to="/admin" className="block bg-black rounded text-white px-2 text-sm py-1 hover:bg-gray-800">
             Admin
           </Link>
           
@@ -52,15 +55,16 @@ const Navbar = () => {
           </Link>
           <button className="relative" onClick={toggleCart}>
             <HiOutlineShoppingBag className="w-6 h-6" />
-            <span className="rounded-full bg-red-800 px-2 py-0.5 absolute -top-1 -right-1 text-xs w-4 h-4 flex items-center justify-center text-white">
-              5
-            </span>
+            {cartItemCount > 0 && (
+              <span className="rounded-full bg-red-800 px-2 py-0.5 absolute -top-1 -right-1 text-xs w-4 h-4 flex items-center justify-center text-white">
+                {cartItemCount}
+              </span>
+            )}
           </button>
           <div className="overflow-hidden">
             <SearchBar />
           </div>
           <button onClick={toggleNavDrawer}>
-        
             <HiBars3BottomRight className="w-6 h-6 md:hidden" />
           </button>
         </div>
@@ -68,7 +72,6 @@ const Navbar = () => {
 
       <CartDrawer isCartOpen={isCartOpen} toggleCart={toggleCart} />
 
-      {/* Fixed template literal syntax with backticks */}
       <div
         className={`fixed top-0 left-0 w-3/4 h-full bg-white z-50 transform transition-transform duration-300 ${
           navDrawer ? "translate-x-0" : "-translate-x-full"
