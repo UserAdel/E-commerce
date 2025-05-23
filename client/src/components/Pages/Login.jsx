@@ -1,16 +1,37 @@
 import React from "react";
 import login from "../../assets/login.webp";
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { Link, redirect, useLocation, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../../redux/slices/authSlice";
-
+import { useEffect } from "react";
 const Login = () => {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const dispatch = useDispatch();
-  
+  const navigate=useNavigate();
+  const location=useLocation();
+  const{user,guestId}=useSelector((state)=>state.auth);
+  const {cart} = useSelector((state)=>state.cart)
+
+  const redirect = new URLSearchParams(location.search).get("redirect") || "/";
+  const isCheckoutRedirect = redirect.includes("checkout");
+
+
+useEffect(() => {
+  if (user) {
+    if (cart?.products.length > 0 && guestId) {
+      dispatch(mergeCart({ guestId, user })).then(() => {
+        navigate(isCheckoutRedirect ? "/checkout" : "/");
+      });
+    } else {
+      navigate(isCheckoutRedirect ? "/checkout" : "/");
+    }
+  }
+}, [user, guestId, cart, navigate, isCheckoutRedirect, dispatch]);
+
+
   const submitHanler = (e) => {
     e.preventDefault();
    dispatch(loginUser({email,password}))
@@ -38,7 +59,7 @@ const Login = () => {
 
           <div className="flex justify-center items-center  mt-4">
             <h1 className=" text-gray-600 text-center text-lg"> don't have an account? </h1>
-            <Link to="/register" className="text-blue-500 hover:underline ml-1" > Register</Link>
+            <Link to={`/register?redirect=${encodeURIComponent(redirect)}`} className="text-blue-500 hover:underline ml-1" > Register</Link>
           </div>
         </form>
       </div>

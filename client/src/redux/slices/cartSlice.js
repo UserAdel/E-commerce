@@ -17,10 +17,14 @@ const saveCartToLocalStorage = (cart) => {
 
 export const fetchCart = createAsyncThunk("cart/fetchCart", async ({userId,guestId},{rejectWithValue}) =>{
   try {
-    const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/cart/`, {
+    const token = JSON.parse(localStorage.getItem("UserToken"));
+    const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/cart`, {
       params: {
         userId,
         guestId,
+      },
+      headers: {
+        "Authorization": `Bearer ${token}`
       }
     });
     return response.data;
@@ -32,6 +36,7 @@ export const fetchCart = createAsyncThunk("cart/fetchCart", async ({userId,guest
 
 export const addToCart = createAsyncThunk("cart/addToCart", async ({productId,quantity,size,color,userId,guestId},{rejectWithValue}) =>{
   try {
+    const token = JSON.parse(localStorage.getItem("UserToken"));
     const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/cart`, {
       userId,
       guestId,
@@ -39,6 +44,10 @@ export const addToCart = createAsyncThunk("cart/addToCart", async ({productId,qu
       quantity,
       size,
       color,
+    }, {
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
     });
 
     return response.data;

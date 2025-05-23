@@ -34,7 +34,7 @@ function App() {
         <Route path="login" element={<Login />} />
         <Route path="register" element={<Register />} />
         <Route path="Profile" element={<Profile />} />
-        <Route path="Collection/:collection" element={<CollectionPage />} />
+        <Route path="collections/:collection" element={<CollectionPage />} />
         <Route path="Product/:id" element={<ProductDetails />} />
         <Route path="Checkout" element={<Checkout />} />
         <Route path="OrderConfirmtion" element={<OrderConfirmationPage />} />

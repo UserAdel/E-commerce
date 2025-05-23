@@ -2,15 +2,21 @@ import React from "react";
 import { IoMdClose } from "react-icons/io"; // Import the close icon
 import CartContent from "../Cart/CartContent";
 import { useNavigate } from "react-router-dom";
-
-
+import { useSelector } from "react-redux";
 
 const CartDrawer = ({ isCartOpen, toggleCart }) => {
-const navigate = useNavigate();
+  const navigate = useNavigate();
+  const { user, guestId } = useSelector((state) => state.auth);
+  const { cart } = useSelector((state) => state.cart);
+  const userId = user ? user._id : null;
   const handleCheckout = () => {
     toggleCart();
-    navigate("/checkout");
-  }
+    if (!user) {
+      navigate("/login?redirect=checkout");
+    } else {
+      navigate("/checkout");
+    }
+  };
 
   return (
     <div
@@ -25,17 +31,29 @@ const navigate = useNavigate();
         </button>
       </div>
       <div className="flex-grow overflow-y-auto p-4">
+        {cart && cart?.products?.length>0 ?(<CartContent cart={cart} userId={userId} guestId={guestId} />):(<p>
+          Your cart is empty.
+        </p>)}
         
-        <CartContent />
       </div>
 
       <div className="bg-white p-4 sticky bottom-0">
-        <button onClick={handleCheckout} className="w-full bg-black text-white rounded-lg py-3 font-semibold hover:bg-gray-800">
-          Checkout
-        </button>
-        <p className="text-sm tracking-tighter text-gray-500 mt-2 text-center">
-          Shipping, taxes, and discount codes calculated at checkout
-        </p>
+
+        {cart && cart?.products?.length > 0 && (
+          <>
+            <button
+              onClick={handleCheckout}
+              className="w-full bg-black text-white rounded-lg py-3 font-semibold hover:bg-gray-800"
+            >
+              Checkout
+            </button>
+            <p className="text-sm tracking-tighter text-gray-500 mt-2 text-center">
+              Shipping, taxes, and discount codes calculated at checkout
+            </p>
+          </>
+        )}
+
+    
       </div>
     </div>
   );

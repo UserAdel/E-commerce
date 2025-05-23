@@ -122,9 +122,10 @@ if(error){
           <h2 className="font-bold text-black text-3xl">
             {selectedProduct.name}
           </h2>
-          <p className="text-xl line-through">
-            ${selectedProduct.originalPrice}
-          </p>
+          {selectedProduct.originalPrice ? (<p className="text-xl line-through">
+            ${selectedProduct.originalPrice }
+          </p>):null}
+       
           <p className="text-xl text-gray-900">${selectedProduct.price}</p>
           <p className="text-lg">{selectedProduct.description}</p>
           <div className="">

@@ -2,9 +2,14 @@ import React from 'react'
 import { useState } from 'react';
 import { FaSearch } from "react-icons/fa";
 import { BiX } from "react-icons/bi";
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 const SearchBar = () => {
     const [isOpen, setIsOpen] = useState(false);
+    const dispatch=useDispatch();
+    const navigate = useNavigate();
+
     const toggle = () => {
       setIsOpen(!isOpen);
     };
@@ -15,7 +20,9 @@ const SearchBar = () => {
     
     const handleSubmit = (e) => {
       e.preventDefault();
-      console.log(search);
+      dispatch(setFilters({search:search}))
+      dispatch(fetchProductsByFilters({search:search}))
+      navigate(`/collections/all?search=${search}`)
     };
 
     return (

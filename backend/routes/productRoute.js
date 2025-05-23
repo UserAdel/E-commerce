@@ -213,11 +213,14 @@ router.get("/", async (req, res) => {
       query.gender = gender;
     }
 
-    if (maxPrice) {
-      query.price.$gte = Number(maxPrice);
-    }
-    if (minPrice) {
-      query.price.$lte = Number(minPrice);
+    if (minPrice || maxPrice) {
+      query.price = {};
+      if (minPrice) {
+        query.price.$gte = Number(minPrice);
+      }
+      if (maxPrice) {
+        query.price.$lte = Number(maxPrice);
+      }
     }
 
     if (search) {
@@ -246,7 +249,7 @@ router.get("/", async (req, res) => {
       }
     }
 
-    let products = await Product.find(query).sort(sortBy).limit(Number(limit));
+    let products = await Product.find(query).sort(sort).limit(Number(limit));
     res.send(products);
   } catch (error) {
     console.log(error);

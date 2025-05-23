@@ -14,12 +14,12 @@ const Navbar = () => {
   };
 
   const [navDrawer, setNavDrawer] = useState(false);
+  const{cart}=useSelector((state)=>state.cart)
+  const cartItemCount = cart?.products?.reduce((total,product)=>total+product.quantity,0) || 0;
+
   const toggleNavDrawer = () => {
     setNavDrawer(!navDrawer);
   };
-
-  const { cart } = useSelector((state) => state.cart);
-  const cartItemCount = cart?.products?.length || 0;
 
   return (
     <div className="container mx-auto py-1 relative">
@@ -31,25 +31,40 @@ const Navbar = () => {
         </div>
 
         <div className="flex justify-between items-center space-x-6 font-bold text-1xl">
-          <Link to="/Collection/all" className="text-gray-600 hover:text-gray-800 hidden md:block">
+          <Link
+            to="/collections/all?gender=Men"
+            className="text-gray-600 hover:text-gray-800 hidden md:block"
+          >
             MEN
           </Link>
-          <Link className="text-gray-600 hover:text-gray-800 hidden md:block">
+          <Link
+            to="/collections/all?gender=Woman"
+            className="text-gray-600 hover:text-gray-800 hidden md:block"
+          >
             WOMAN
           </Link>
-          <Link className="text-gray-600 hover:text-gray-800 hidden md:block">
-            TOP WAER
+          <Link
+            to="/collections/all?category=Top Wear"
+            className="text-gray-600 hover:text-gray-800 hidden md:block"
+          >
+            TOP WEAR
           </Link>
-          <Link className="text-gray-600 hover:text-gray-800 hidden md:block">
+          <Link
+            to="/collections/all?category=Bottom Wear"
+            className="text-gray-600 hover:text-gray-800 hidden md:block"
+          >
             BOTTOM WEAR
           </Link>
         </div>
 
         <div className="flex justify-between items-center space-x-3">
-          <Link to="/admin" className="block bg-black rounded text-white px-2 text-sm py-1 hover:bg-gray-800">
+          <Link
+            to="/admin"
+            className="block bg-black rounded text-white px-2 text-sm py-1 hover:bg-gray-800"
+          >
             Admin
           </Link>
-          
+
           <Link to="/my-orders">
             <HiOutlineUser className="w-6 h-6" />
           </Link>
@@ -58,6 +73,7 @@ const Navbar = () => {
             {cartItemCount > 0 && (
               <span className="rounded-full bg-red-800 px-2 py-0.5 absolute -top-1 -right-1 text-xs w-4 h-4 flex items-center justify-center text-white">
                 {cartItemCount}
+                {console.log(cartItemCount)}
               </span>
             )}
           </button>
@@ -87,25 +103,29 @@ const Navbar = () => {
           <h1 className="font-bold text-4xl mb-6">Menu</h1>
           <nav className="space-y-2 flex-col flex">
             <Link
-              to={"/"}
+              to="/collections/all?gender=Men"
+              onClick={toggleNavDrawer}
               className="text-gray-600 font-semibold text-2xl hover:text-black py-2"
             >
               Men
             </Link>
             <Link
-              to={"/"}
+              to="/collections/all?gender=Woman"
+              onClick={toggleNavDrawer}
               className="text-gray-600 font-semibold text-2xl hover:text-black py-2"
             >
               Woman
             </Link>
             <Link
-              to={"/"}
+              to="/collections/all?category=Top Wear"
+              onClick={toggleNavDrawer}
               className="text-gray-600 font-semibold text-2xl hover:text-black py-2"
             >
               Top Wear
             </Link>
             <Link
-              to={"/"}
+              to="/collections/all?category=Bottom Wear"
+              onClick={toggleNavDrawer}
               className="text-gray-600 font-semibold text-2xl hover:text-black py-2"
             >
               Bottom Wear
