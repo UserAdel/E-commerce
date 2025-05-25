@@ -5,6 +5,8 @@ import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { clearCart } from "../../redux/slices/cartSlice";
 import { logout } from "../../redux/slices/authSlice";
+
+
 const Profile = () => {
 
   const { user } = useSelector((state) => state.auth);

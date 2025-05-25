@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { registerUser }  from "../../redux/slices/authSlice";
 import { useDispatch, useSelector } from "react-redux";
+import {mergeCart} from "../../redux/slices/cartSlice"
 
 const Register = () => {
   const [email, setEmail] = useState("");

@@ -2,37 +2,21 @@ import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+
+import { fetchOrdersDetails } from "../../redux/slices/orderSlice"; // Make sure this import path is correct
+
 const OrderDetailsPage = () => {
   const { id } = useParams();
-  const [orderdetails, setoderdetails] = useState(null);
+  const dispatch = useDispatch();
+  const { orderdetails, loading, error } = useSelector((state) => state.orders);
+
   useEffect(() => {
-    const mockOrderDetails = {
-      _id: id,
-      createdAt: new Date(),
-      isPaid: true,
-      isDelivered: false,
-      paymentMethod: "PayPal",
-      shippingMethod: "Standard",
-      shippingAddress: { city: "New York", country: "USA" },
-      orderItems: [
-        {
-          productId: "1",
-          name: "Jacket",
-          price: 120,
-          quantity: 1,
-          image: "https://picsum.photos/150?random=1",
-        },
-        {
-          productId: "2",
-          name: "Sweater",
-          price: 180,
-          quantity: 2,
-          image: "https://picsum.photos/150?random=1",
-        },
-      ],
-    };
-    setoderdetails(mockOrderDetails);
-  }, [id]);
+    dispatch(fetchOrdersDetails(id));
+  }, [dispatch, id]);
+
+  if (loading) return <p>loading ...</p>;
+  if (error) return <p>error {error}</p>;
 
   return (
     <div className="max-w-7xl mx-auto p-4 sm:p-6">
@@ -48,7 +32,7 @@ const OrderDetailsPage = () => {
                 Order ID: #{orderdetails._id}
               </h3>
               <p className="text-gray-600">
-                {new Date(orderdetails.createdAt).toLocaleDateString()}
+                {new Date(order.createdAt).toLocaleDateString()}
               </p>
             </div>
             <div className="flex flex-col items-start sm:items-end mt-4 sm:mt-0">
@@ -127,8 +111,7 @@ const OrderDetailsPage = () => {
             </table>
           </div>
           <Link to="/my-orders" className="text-blue-500 hover:underline mt-4">
-
-          Back to My Orders
+            Back to My Orders
           </Link>
         </div>
       )}

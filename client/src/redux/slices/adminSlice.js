@@ -39,7 +39,7 @@ export const updateUser = createAsyncThunk("admin/updateUser",async({id,name,ema
           authorization: `Bearer ${localStorage.getItem("userToken")}`
       }
   })
-  return response.data;
+  return response.data.user;
   } catch (error) {
       return rejectWithValue(error.response.data.message)
   }

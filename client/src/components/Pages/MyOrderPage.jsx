@@ -1,65 +1,23 @@
 import React from "react";
 import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 const MyOrderPage = () => {
-  const [orders, setOrders] = useState([]);
-  useEffect(() => {
-    setTimeout(() => {
-      const mockOrders = [
-        {
-          _id: "12345",
-          createdAt: new Date(),
-          shippingAddress: { city: "New York", country: "USA" },
-          orderItems: [
-            {
-              name: "Product 1",
-              image: "https://picsum.photos/500/500?random=1",
-            },
-          ],
-          totalPrice: 100,
-          isPaid: true,
-        },
-        {
-          _id: "67890",
-          createdAt: new Date(Date.now() - 86400000), // Yesterday
-          shippingAddress: { city: "Los Angeles", country: "USA" },
-          orderItems: [
-            {
-              name: "Product 2",
-              image: "https://picsum.photos/500/500?random=2",
-            },
-            {
-              name: "Product 3",
-              image: "https://picsum.photos/500/500?random=3",
-            },
-          ],
-          totalPrice: 175,
-          isPaid: true,
-        },
-        {
-          _id: "24680",
-          createdAt: new Date(Date.now() - 172800000), // 2 days ago
-          shippingAddress: { city: "Chicago", country: "USA" },
-          orderItems: [
-            {
-              name: "Product 4",
-              image: "https://picsum.photos/500/500?random=4",
-            },
-          ],
-          totalPrice: 85,
-          isPaid: false,
-        },
-      ];
-
-      setOrders(mockOrders);
-    }, 2000);
-  });
-
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { orders, loading, error } = useSelector((state) => state.orders);
+
+  useEffect(() => {
+    dispatch(fetchUserOrders());
+  }, [dispatch]);
+
   const handelRowClick = (id) => {
     navigate(`/order/${id}`);
   };
+
+  if (loading) return <p>loading ...</p>;
+  if (error) return <p>error {error}</p>;
 
   return (
     <div className="max-w-7xl mx-auto p-4 sm:p-6">

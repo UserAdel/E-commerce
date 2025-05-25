@@ -1,19 +1,31 @@
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import {fetchAllOrders} from "../../redux/slices/adminOrderSlice"
+
 const OrderManagement = () => {
-  const orders = [
-    {
-      _id: 12312321,
-      user: {
-        name: "John Doe",
-      },
-      totalPrice: 110,
-      status: "Processing",
-    },
-  ];
+
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { user } = useSelector((state) => state.auth);
+  const { orders,loading,error } = useSelector((state) => state.adminOrders);
+
+seEffect(() => {
+    if (!user && user.role !== "admin") {
+      navigate("/");
+    }else{dispatch(fetchAllOrders());}
+  }, [user,dispatch, navigate]);
+
+
+
+
 
   const handleStatusChange = (orderId, newStatus) => {
-    //  make an API call to update the order status
-    console.log(`Order ID: ${orderId}, New Status: ${newStatus}`);
+   dispatch(updateOrderStatus({id:orderId ,status:newStatus}))
   };
+
+    if (loading) return <p>loading ...</p>;
+  if (error) return <p>error {error}</p>;
 
   return (
     <div className="max-w-7xl mx-auto p-6">
@@ -45,7 +57,7 @@ const OrderManagement = () => {
                     {order._id}
                   </td>
                   <td className="py-4 px-4">{order.user.name}</td>
-                  <td className="py-4 px-4">${order.totalPrice}</td>
+                  <td className="py-4 px-4">${order.totalPrice.toFixer(2)}</td>
                   <td className="py-4 px-4">
                     <select
                       value={order.status}

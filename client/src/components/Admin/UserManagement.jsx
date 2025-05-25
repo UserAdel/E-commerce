@@ -1,12 +1,32 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import {
+  addUser,
+  fetchUsers,
+  updateUser,
+  deleteUser,
+} from "../../redux/slices/adminSlice";
 
 const UserManagement = () => {
-  const users = [
-    { _id: "1", name: "john", email: "john@example.com", role: "admin" },
-    { _id: "2", name: "adel", email: "adel@example.com", role: "customer" },
-    { _id: "3", name: "samy", email: "samy@example.com", role: "customer" },
-  ];
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const { user } = useSelector((state) => state.auth);
+  const { users, loading, error } = useSelector((state) => state.adminOrder);
+
+  useEffect(() => {
+    if (!user && user.role !== "admin") {
+      navigate("/");
+    }
+  }, [user, navigate]);
+
+  useEffect(() => {
+    if (user && user.role !== "admin") {
+      dispatch(fetchUsers());
+    }
+  }, [user, dispatch]);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -25,7 +45,8 @@ const UserManagement = () => {
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
+    dispatch(addUser(formData));
+
     setFormData({
       name: "",
       email: "",
@@ -35,20 +56,24 @@ const UserManagement = () => {
   };
 
   const handleRoleChange = (userId, newRole) => {
-    console.log(`User ID: ${userId}, New Role: ${newRole}`);
+    dispatch(updateUser({ userId, newRole }));
   };
 
   const handleDeleteUser = (userId) => {
     if (window.confirm("Are you sure you want to delete this user?"))
-      console.log("DeleteUserId", userId);
+      dispatch(deleteUser());
   };
 
   return (
     <div className="max-w-6xl mx-auto p-4 mt-6 h-screen">
       <h1 className="text-2xl font-bold">User Management</h1>
+      {loading && <p>loading...</p>}
+      {error && <p>error:{error}</p>}
+
       <div className="p-4">
         <div>
           <h2 className="font-bold text-lg mt-4">Add New User</h2>
+
           <form onSubmit={handleFormSubmit}>
             <div className="flex flex-col mt-4">
               <label className="text-gray-500">Name</label>
@@ -125,7 +150,9 @@ const UserManagement = () => {
                     <select
                       name="role"
                       className="py-1 border"
-                      onChange={(e) => handleRoleChange(user._id, e.target.value)}
+                      onChange={(e) =>
+                        handleRoleChange(user._id, e.target.value)
+                      }
                       value={user.role}
                     >
                       <option value="customer">Customer</option>

@@ -14,8 +14,11 @@ const Navbar = () => {
   };
 
   const [navDrawer, setNavDrawer] = useState(false);
-  const{cart}=useSelector((state)=>state.cart)
-  const cartItemCount = cart?.products?.reduce((total,product)=>total+product.quantity,0) || 0;
+  const { cart } = useSelector((state) => state.cart);
+  const { user } = useSelector((state) => state.user || {}); 
+  const cartItemCount =
+    cart?.products?.reduce((total, product) => total + product.quantity, 0) ||
+    0;
 
   const toggleNavDrawer = () => {
     setNavDrawer(!navDrawer);
@@ -58,14 +61,16 @@ const Navbar = () => {
         </div>
 
         <div className="flex justify-between items-center space-x-3">
-          <Link
-            to="/admin"
-            className="block bg-black rounded text-white px-2 text-sm py-1 hover:bg-gray-800"
-          >
-            Admin
-          </Link>
+          {user && user.role === "admin" && (
+            <Link
+              to="/admin"
+              className="block bg-black rounded text-white px-2 text-sm py-1 hover:bg-gray-800"
+            >
+              Admin
+            </Link>
+          )}
 
-          <Link to="/my-orders">
+          <Link to="/profile">
             <HiOutlineUser className="w-6 h-6" />
           </Link>
           <button className="relative" onClick={toggleCart}>

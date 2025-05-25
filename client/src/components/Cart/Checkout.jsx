@@ -1,29 +1,16 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-const cart = {
-  products: [
-    {
-      name: "Stylish Jacket",
-      size: "M",
-      color: "Black",
-      price: 120,
-      image: "https://picsum.photos/150?random=1",
-    },
-    {
-      name: "Casual Sneakers",
-      size: "42",
-      color: "White",
-      price: 75,
-      image: "https://picsum.photos/150?random=2",
-    },
-  ],
-  totalPrice: 195,
-};
+import { useDispatch, useSelector } from "react-redux";
+import { createCheckout } from "../../redux/slices/checkoutSlice";
 
 const Checkout = () => {
- const navigate = useNavigate();
-  const [checkoutid, setCheckoutid] = useState(null);
+  const navigate = useNavigate();
+
+  const dispatch = useDispatch();
+  const { cart, loading, error } = useSelector((state) => state.cart);
+  const { user } = useSelector((state) => state.auth);
+
+  const [checkoutId, setcheckoutId] = useState(null);
   const [shippingAddress, setShippingAddress] = useState({
     firstname: "",
     lastname: "",
@@ -34,12 +21,77 @@ const Checkout = () => {
     phone: "",
   });
 
-  const Handelcheckoutsubmit = (e) => {
+  useEffect(() => {
+    if (!cart || !cart.products || cart.products.length === 0) {
+      navigate("/");
+    }
+  }, [cart, navigate]);
+
+  const Handelcheckoutsubmit = async (e) => {
     e.preventDefault();
     console.log("Shipping address:", shippingAddress);
-    setCheckoutid(1234);
-    navigate("/OrderConfirmtion");
+    if (cart && cart.products.length > 0) {
+      const res = dispatch(
+        createCheckout({
+          CheckoutItems: cart.products,
+          shippingAddress,
+          paymentMethod: "Paypal",
+          totalPrice: cart.totalPrice,
+        })
+      );
+      if (res.payload && res.payload._id) {
+        setcheckoutId(res.payload._id);
+      }
+    }
   };
+
+ const handlePaymentSuccess = async (details) => {
+    try {
+      const response = await axios.put(
+        `${import.meta.env.VITE_BACKEND_URL}/api/checkout/${checkoutId}/pay`,
+        { paymentStatus: "paid", paymentDetails: details },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("userToken")}`,
+          },
+        }
+      );
+     
+        await handleFinalizeCheckout(checkoutId);
+      
+    
+    navigate("/order-confirmation");
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleFinalizeCheckout = async (checkoutId) => {
+    try {
+      const response = await axios.post(
+        `${
+          import.meta.env.VITE_BAKCEND_URL
+        }/api/checkout/${checkoutId}/finalize`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("userToken")}`,
+          },
+        }
+      );
+    
+        navigate("/order-confirmation");
+  
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  if (loading) return <p> loading cart ...</p>;
+  if (error) return <p> Error:{error}</p>;
+  if (!cart || !cart.products || cart.products.length === 0) {
+    return <p>Your cart is empty</p>;
+  }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-7xl p-4 mx-auto">
@@ -51,7 +103,7 @@ const Checkout = () => {
           <label className="text-gray-600 text-lg block">Email</label>
           <input
             type="text"
-            value="Admin@exapmle.com"
+            value={user ? user.email:""}
             className="border p-2 mb-2 w-full rounded"
             disabled={true}
           />
@@ -154,13 +206,24 @@ const Checkout = () => {
             }
             value={shippingAddress.phone}
           />
-
-          <button
+          {!checkoutId ?(          <button
             type="submit"
             className="bg-black text-lg font-semibold  hover:bg-gray-800 w-full text-white py-3 rounded"
           >
             Continue to Payment
-          </button>
+          </button>):(
+            <div> 
+            <h3 className="text-leg mb-4"> pay with Paypal</h3>
+            <button onClick={handlePaymentSuccess}>
+              Paypal
+            </button>
+
+
+            </div>
+
+
+          )}
+
         </form>
       </div>
 

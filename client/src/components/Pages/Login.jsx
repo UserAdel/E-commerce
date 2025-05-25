@@ -7,6 +7,8 @@ import { loginUser } from "../../redux/slices/authSlice";
 import { useEffect } from "react";
 const Login = () => {
 
+  const{loading}=useSelector((state)=>state.auth);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const dispatch = useDispatch();
@@ -53,8 +55,9 @@ useEffect(() => {
           />
           <label htmlFor="password" className="mb-4"> Password</label>
           <input type="password" placeholder="enter your password " onChange={(e)=>setPassword(e.target.value)}  className="border p-2 mb-4" />
+          
           <button type="submit" className="bg-black mt-4 text-white p-2 rounded">
-            Login
+         {loading ? "loading" : "Login"}   
           </button>
 
           <div className="flex justify-center items-center  mt-4">
