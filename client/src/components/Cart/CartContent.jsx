@@ -11,34 +11,46 @@ const CartContent = ({ cart, userId, guestId }) => {
   const dispatch = useDispatch();
   const { loading } = useSelector((state) => state.cart);
 
-  const handleAddToCart = (productId, delta, quantity, size, color) => {
+  const handleAddToCart = async (productId, delta, quantity, size, color) => {
     const newQuantity = quantity + delta;
     if (newQuantity >= 1) {
-      dispatch(
-        updateCartItemQuantity({
+      try {
+        const result = await dispatch(
+          updateCartItemQuantity({
+            productId,
+            quantity: newQuantity,
+            size,
+            color,
+            userId,
+            guestId,
+          })
+        ).unwrap();
+        if (result) {
+          toast.success("Cart updated successfully");
+        }
+      } catch (error) {
+        toast.error(error || "Failed to update cart");
+      }
+    }
+  };
+
+  const handleRemoveItem = async (productId, size, color) => {
+    try {
+      const result = await dispatch(
+        removeFromCart({
           productId,
-          quantity: newQuantity,
           size,
           color,
           userId,
           guestId,
         })
-      );
+      ).unwrap();
+      if (result) {
+        toast.success("Item removed successfully");
+      }
+    } catch (error) {
+      toast.error(error || "Failed to remove item");
     }
-  };
-
-  const handleRemoveItem = (productId, size, color) => {
-    dispatch(
-      removeFromCart({
-        productId,
-        size,
-        color,
-        userId,
-        guestId,
-      })
-    ).catch((error) => {
-      toast.error(error.message || "Failed to remove product");
-    });
   };
 
   if (loading) {
@@ -56,11 +68,17 @@ const CartContent = ({ cart, userId, guestId }) => {
           key={`${product.productId}-${product.size}-${product.color}`}
           className="flex justify-between items-center border-b py-4"
         >
-          <img
-            src={product.image}
-            alt={product.name}
-            className="w-16 h-16 object-cover rounded"
-          />
+          {product.image ? (
+            <img
+              src={product.image}
+              alt={product.name}
+              className="w-16 h-16 object-cover rounded"
+            />
+          ) : (
+            <div className="w-16 h-16 bg-gray-200 rounded flex items-center justify-center">
+              <span className="text-gray-400">No image</span>
+            </div>
+          )}
           <div className="flex-1 px-4">
             <h4 className="font-medium">{product.name}</h4>
             <p className="text-sm text-gray-500">

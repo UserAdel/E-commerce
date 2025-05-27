@@ -5,13 +5,20 @@ const cartSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: function() {
-      return !this.guestId; // Only required if guestId is not present
+      return !this.guestId && !this.userId; // Only required if neither guestId nor userId is present
+    }
+  },
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: function() {
+      return !this.guestId && !this.user; // Only required if neither guestId nor user is present
     }
   },
   guestId: {
     type: String,
     required: function() {
-      return !this.user; // Only required if user is not present
+      return !this.user && !this.userId; // Only required if neither user nor userId is present
     }
   },
   products: [

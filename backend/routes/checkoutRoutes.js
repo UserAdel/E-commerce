@@ -136,7 +136,8 @@ router.post("/:id/finalize", protect, async(req, res) => {
             await checkout.save();
             
             // Clear the user's cart after successful order creation
-            await Cart.findOneAndDelete({user: checkout.user});
+            const deletedCart = await Cart.findOneAndDelete({user: checkout.user});
+            console.log("Cart deleted:", deletedCart ? "Yes" : "No");
             
             res.status(201).json({
                 success: true,

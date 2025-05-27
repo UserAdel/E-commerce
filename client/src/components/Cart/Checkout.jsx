@@ -5,7 +5,7 @@ import { createCheckout } from "../../redux/slices/checkoutSlice";
 import { toast } from "sonner";
 import axios from "axios";
 import { createOrder } from "../../redux/slices/orderSlice";
-import { clearCart } from "../../redux/slices/cartSlice";
+import { clearCart, clearCartFromBackend } from "../../redux/slices/cartSlice";
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -14,7 +14,10 @@ const Checkout = () => {
   const { cart, loading, error } = useSelector((state) => state.cart);
   const { user } = useSelector((state) => state.auth);
 
-  const [checkoutId, setcheckoutId] = useState(null);
+  const [checkoutId, setcheckoutId] = useState(() => {
+    const savedCheckoutId = localStorage.getItem("checkoutId");
+    return savedCheckoutId || null;
+  });
   const [shippingAddress, setShippingAddress] = useState({
     firstname: "",
     lastname: "",
@@ -72,6 +75,7 @@ const Checkout = () => {
 
       if (result._id) {
         setcheckoutId(result._id);
+        localStorage.setItem("checkoutId", result._id);
         toast.success("Checkout created successfully");
         // Now proceed with payment
         handlePaymentSuccess({
@@ -93,14 +97,15 @@ const Checkout = () => {
         return;
       }
 
-      if (!checkoutId) {
+      const currentCheckoutId = checkoutId || localStorage.getItem("checkoutId");
+      if (!currentCheckoutId) {
         toast.error("Checkout session not found. Please try again.");
         return;
       }
 
       // First finalize the checkout
       const checkoutResponse = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/checkout/${checkoutId}/pay`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/checkout/${currentCheckoutId}/pay`,
         {
           method: "PUT",
           headers: {
@@ -155,9 +160,14 @@ const Checkout = () => {
       // Create the order
       const result = await dispatch(createOrder(orderData)).unwrap();
       
-      // Clear the cart
+      // Clear the cart from backend first
+      await dispatch(clearCartFromBackend({ userId: user._id })).unwrap();
+      
+      // Then clear the cart in Redux store and localStorage
       dispatch(clearCart());
-      localStorage.removeItem("cart");
+      
+      // Clear the checkout ID from localStorage
+      localStorage.removeItem("checkoutId");
 
       // Navigate to order confirmation
       navigate("/order-confirmation");
@@ -295,7 +305,6 @@ const Checkout = () => {
             </button>
           ) : (
             <div className="mt-4">
-              <h3 className="text-lg mb-4">Pay with PayPal</h3>
               <button
                 type="button"
                 onClick={() => handlePaymentSuccess({ transactionId: `PAY-${Date.now()}` })}
@@ -337,7 +346,7 @@ const Checkout = () => {
         {/* Added total price summary */}
         <div className="flex justify-between p-4 font-bold text-lg">
           <span>Total:</span>
-          <span>${cart.totalPrice}</span>
+          <span>${cart.totalPrice.toFixed(2)}</span>
         </div>
       </div>
     </div>

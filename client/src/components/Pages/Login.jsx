@@ -31,7 +31,8 @@ const Login = () => {
       }
 
       if (cart?.products?.length > 0 && guestId) {
-        dispatch(mergeCart({ guestId, userId: user._id }))
+        console.log("Merging cart with user:", user);
+        dispatch(mergeCart({ guestId, user }))
           .then(() => {
             navigate(isCheckoutRedirect ? "/checkout" : "/");
           })
