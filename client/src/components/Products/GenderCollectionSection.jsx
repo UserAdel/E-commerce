@@ -16,7 +16,7 @@ const GenderCollectionSection = () => {
           />
         <div className="bottom-8 left-8 absolute bg-white p-4">
           <h2 className="font-bold text-2xl">Mens Collections</h2>
-          <Link to="/collections/all?gender=men"
+          <Link to="/collections/all?gender=Men"
           className="underline"
           >shop now</Link>
         </div>
@@ -29,7 +29,7 @@ const GenderCollectionSection = () => {
           />
         <div className="bottom-8 left-8 absolute bg-white p-4 ">
           <h2 className="font-bold text-2xl">Womens Collections</h2>
-          <Link to="/collections/all?gender=women"
+          <Link to="/collections/all?gender=Women"
           className="underline"
           >shop now</Link>
         </div>

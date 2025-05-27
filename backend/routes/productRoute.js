@@ -206,7 +206,7 @@ router.get("/", async (req, res) => {
     }
 
     if (color) {
-      query.color = { $in: [color] };
+      query.colors = { $in: color.split(",") };
     }
 
     if (gender) {
@@ -236,24 +236,34 @@ router.get("/", async (req, res) => {
         case "priceAsc":
           sort = { price: 1 };
           break;
-
         case "priceDesc":
           sort = { price: -1 };
           break;
-
         case "popularity":
           sort = { rating: -1 };
           break;
+        case "createdAt":
+          sort = { createdAt: -1 };
+          break;
         default:
+          sort = { createdAt: -1 };
           break;
       }
+    } else {
+      sort = { createdAt: -1 };
     }
 
-    let products = await Product.find(query).sort(sort).limit(Number(limit));
-    res.send(products);
+    const limitNumber = limit ? Number(limit) : 20;
+    const products = await Product.find(query).sort(sort).limit(limitNumber);
+    
+    if (!products || products.length === 0) {
+      return res.status(200).json([]);
+    }
+
+    res.status(200).json(products);
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: "Server Error" });
+    console.error("Error fetching products:", error);
+    res.status(500).json({ message: "Server Error", error: error.message });
   }
 });
 

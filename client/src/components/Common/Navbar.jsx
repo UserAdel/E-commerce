@@ -48,7 +48,7 @@ const Navbar = () => {
             MEN
           </Link>
           <Link
-            to="/collections/all?gender=Woman"
+            to="/collections/all?gender=Women"
             className="text-gray-600 hover:text-gray-800 hidden md:block"
           >
             WOMAN
@@ -121,7 +121,7 @@ const Navbar = () => {
               Men
             </Link>
             <Link
-              to="/collections/all?gender=Woman"
+              to="/collections/all?gender=Women"
               onClick={toggleNavDrawer}
               className="text-gray-600 font-semibold text-2xl hover:text-black py-2"
             >

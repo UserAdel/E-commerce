@@ -3,9 +3,9 @@ import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
 const Cart = () => {
-  const { items, total } = useSelector((state) => state.cart);
+  const { cart } = useSelector((state) => state.cart);
 
-  if (items.length === 0) {
+  if (!cart?.products?.length) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
@@ -27,9 +27,9 @@ const Cart = () => {
       <h1 className="text-2xl font-bold mb-6">Shopping Cart</h1>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
-          {items.map((item) => (
+          {cart.products.map((item) => (
             <div
-              key={item._id}
+              key={`${item.productId}-${item.size}-${item.color}`}
               className="flex items-center border-b py-4"
             >
               <img

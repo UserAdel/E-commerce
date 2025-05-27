@@ -18,7 +18,7 @@ const {selectedProduct,loading,error,similarProducts}=useSelector((state)=>state
 
 const {user,guestId}=useSelector((state)=>state.auth)
 
-  const [mainImage, setMainImage] = useState("");
+  const [mainImage, setMainImage] = useState(null);
   const [selectedSizes, setselectedSizes] = useState(null);
   const [selectedColors, setselectedColors] = useState(null);
   const [quantity, setQuantity] = useState(1);
@@ -83,7 +83,7 @@ if(error){
             <img
               key={index}
               src={image.url}
-              alt={image.altText}
+              alt={image.altText || `Product image ${index + 1}`}
               draggable="false"
               onClick={() => setMainImage(image.url)}
               className={`w-20 h-20 mb-4 rounded-lg ${
@@ -92,13 +92,15 @@ if(error){
             />
           ))}
         </div>
-        <div className=" max-w-4xl ">
-          <img
-            src={mainImage}
-            alt=" main image"
-            draggable="false"
-            className="object- rounded-lg"
-          />
+        <div className="max-w-4xl">
+          {mainImage && (
+            <img
+              src={mainImage}
+              alt="Main product image"
+              draggable="false"
+              className="object-cover rounded-lg"
+            />
+          )}
         </div>
         {/* Mobile Thumbnail */}
         <div className="md:hidden flex overscroll-x-scroll space-x-4 mb-4">

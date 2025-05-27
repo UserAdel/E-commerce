@@ -10,7 +10,7 @@ const FeaturedCollection = () => {
           <h2 className="text-2xl font-bold mb-2 text-gray-700">Comfort and Style</h2>
           <h1 className="text-5xl mb-4 font-bold"> Apparel made for your everyday life</h1>
           <h2 className="text-lg tracking-tighter mb-6 text-gray-600"> Discover high-quality, comfortable clothing that effortlessly blends fashion and function. Designed to make you look and feel great every day.</h2>
-       <Link to="/collection/all">
+       <Link to="/collections/all">
        <button className="bg-black text-white rounded-lg text-lg px-6 py-3 hover:bg-gray-800 "> Shop now</button>
        </Link>
 
