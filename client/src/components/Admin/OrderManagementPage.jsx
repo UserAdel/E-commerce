@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import {fetchAllOrders} from "../../redux/slices/adminOrderSlice"
+import {fetchAllOrders,updateOrderStatus} from "../../redux/slices/adminOrderSlice"
 
 const OrderManagement = () => {
 

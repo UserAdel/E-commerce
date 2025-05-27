@@ -73,9 +73,6 @@ if(error){
   return <p>Error:{error}</p>
 }
 
-  console.log(selectedColors);
-  console.log(selectedSizes);
-  console.log(quantity);
 
   return (
     <div> 
