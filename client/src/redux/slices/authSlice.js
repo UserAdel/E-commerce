@@ -5,17 +5,17 @@ import {
 } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const userForomStorage = localStorage.getItem("user")
+const userFromStorage = localStorage.getItem("user")
   ? JSON.parse(localStorage.getItem("user"))
   : null;
 
-const initalGuestId =
+const initialGuestId =
   localStorage.getItem("guestId") || `guest_${new Date().getTime()}`;
-localStorage.setItem("guestId", initalGuestId);
+localStorage.setItem("guestId", initialGuestId);
 
 const initialState = {
-  user: userForomStorage,
-  guestId: initalGuestId,
+  user: userFromStorage,
+  guestId: initialGuestId,
   loading: false,
   error: null,
 };
@@ -57,12 +57,14 @@ export const registerUser = createAsyncThunk(
 const authSlice = createSlice({
   name: "auth",
   initialState,
-  reducer: {
+  reducers: {
     logout: (state) => {
       state.user = null;
       state.guestId = `guest_${new Date().getTime()}`;
-      localStorage.removeItem("userInfo");
-      localStorage.removeItem("userToken");
+      // Clear all user-related data from localStorage
+      localStorage.removeItem("user");
+      localStorage.removeItem("UserToken");
+      localStorage.removeItem("cart");
       localStorage.setItem("guestId", state.guestId);
     },
     generateGuestId: (state) => {

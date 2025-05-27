@@ -129,6 +129,7 @@ if(error){
             <h2 className="text-lg mb-1">color :</h2>
             {selectedProduct.colors.map((color) => (
               <button
+                key={color}
                 onClick={() => setselectedColors(color)}
                 style={{ backgroundColor: color }}
                 className={`rounded-full mr-2 p-1  border-4 h-8 w-8 ${
@@ -143,6 +144,7 @@ if(error){
             <h4 className="text-lg">Size :</h4>
             {selectedProduct.sizes.map((size) => (
               <button
+                key={size}
                 onClick={() => setselectedSizes(size)}
                 className={`border border-gray-300  text-lg mr-2 min-w-7 ${
                   selectedSizes === size ? "text-white bg-black" : ""

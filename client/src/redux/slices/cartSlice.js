@@ -60,6 +60,7 @@ export const addToCart = createAsyncThunk("cart/addToCart", async ({productId,qu
 
 export const updateCartItemQuantity = createAsyncThunk("cart/updateCartItemQuantity", async ({productId,quantity,size,color,userId,guestId},{rejectWithValue}) =>{
   try {
+    const token = JSON.parse(localStorage.getItem("UserToken"));
     const response = await axios.put(`${import.meta.env.VITE_BACKEND_URL}/api/cart`, {
       userId,
       guestId,
@@ -67,6 +68,10 @@ export const updateCartItemQuantity = createAsyncThunk("cart/updateCartItemQuant
       quantity,
       size,
       color,
+    }, {
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
     });
     return response.data;
   } catch (error) {
@@ -77,6 +82,7 @@ export const updateCartItemQuantity = createAsyncThunk("cart/updateCartItemQuant
 
 export const removeFromCart=createAsyncThunk("cart/removeFromCart", async ({productId,size,color,userId,guestId},{rejectWithValue}) =>{
   try {
+    const token = JSON.parse(localStorage.getItem("UserToken"));
     const response = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/api/cart`, {
       data: {
         userId,
@@ -84,6 +90,9 @@ export const removeFromCart=createAsyncThunk("cart/removeFromCart", async ({prod
         productId,
         size,
         color,
+      },
+      headers: {
+        "Authorization": `Bearer ${token}`
       }
     });
     return response.data;
@@ -93,14 +102,15 @@ export const removeFromCart=createAsyncThunk("cart/removeFromCart", async ({prod
 });
 
 
-export const mergeCart=createAsyncThunk("cart/mergeCart", async ({guestId,user},{rejectWithValue}) =>{
+export const mergeCart=createAsyncThunk("cart/mergeCart", async ({guestId,userId},{rejectWithValue}) =>{
   try {
+    const token = JSON.parse(localStorage.getItem("UserToken"));
     const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/cart/merge`, {
       guestId,
-      user
+      userId
     }, {
       headers: {
-        "Authorization": `Bearer ${localStorage.getItem("userToken")}`
+        "Authorization": `Bearer ${token}`
       }
     });
     return response.data;

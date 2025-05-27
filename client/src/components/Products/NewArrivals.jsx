@@ -94,7 +94,7 @@ console.log(leftScroll, container.scrollWidth, container.clientWidth);
             className="min-w-[100%] sm:min-w-[50%] lg:min-w-[30%] relative"
           >
             <img
-    check          src={product.images[0]?.url}
+              src={product.images[0]?.url || null}
               alt={product.images[0]?.altText || product.name}
             />
             <div

@@ -14,7 +14,8 @@ const getCart = async (userId, guestId) => {
   return null;
 };
 
-router.post("/", protect, async (req, res) => {
+// Allow both guest and authenticated users to add items to cart
+router.post("/", async (req, res) => {
   const { productId, quantity, size, color, guestId } = req.body;
   const userId = req.user ? req.user._id : null;
 
@@ -75,6 +76,7 @@ router.post("/", protect, async (req, res) => {
   }
 });
 
+// Allow both guest and authenticated users to update cart
 router.put("/", async (req, res) => {
   const { productId, quantity, size, color, userid, guestId } = req.body;
 
@@ -106,6 +108,7 @@ router.put("/", async (req, res) => {
   }
 });
 
+// Allow both guest and authenticated users to delete items from cart
 router.delete("/", async (req, res) => {
   const { productId, size, color, userid, guestId } = req.body;
 
@@ -136,9 +139,7 @@ router.delete("/", async (req, res) => {
   }
 });
 
-
-
-
+// Keep protect middleware for merge route as it requires authentication
 router.post("/merge", protect, async (req, res) => {
   const { guestId } = req.body;
 
@@ -170,14 +171,11 @@ router.post("/merge", protect, async (req, res) => {
         }, 0);
         await userCart.save();
 
-
-      try {
-        await Cart.findByIdAndDelete({guestId});
-
-      } catch (error) {
-        console.error("error deleting guest cart",error);
-        
-      }
+        try {
+          await Cart.findByIdAndDelete(guestCart._id);
+        } catch (error) {
+          console.error("error deleting guest cart", error);
+        }
         return res.status(200).json(userCart);
       } else {
         guestCart.user = req.user._id;
@@ -197,15 +195,7 @@ router.post("/merge", protect, async (req, res) => {
   }
 });
 
-
-
-
-
-
-
-
-
-
+// Allow both guest and authenticated users to get cart
 router.get("/", async (req, res) => {
   const { userid, guestId } = req.query;
   try {

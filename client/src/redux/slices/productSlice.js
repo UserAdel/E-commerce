@@ -56,12 +56,17 @@ export const fetchProductDetails = createAsyncThunk(
 export const updateProduct = createAsyncThunk(
   "products/update",
   async ({ id, productData }) => {
+    const token = JSON.parse(localStorage.getItem("UserToken"));
+    if (!token) {
+      throw new Error("No token found");
+    }
+
     const response = await axios.put(
       `${import.meta.env.VITE_BACKEND_URL}/api/products/${id}`,
       productData,
       {
         headers: {
-            authorization: `Bearer ${localStorage.getItem("userToken")}`
+          Authorization: `Bearer ${token}`
         },
       }
     );

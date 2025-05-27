@@ -7,14 +7,18 @@ import {
   
 export const createCheckout = createAsyncThunk("checkout/createCheckout", async (checkoutData,{rejectWithValue}) =>{
     try {
+       const token = JSON.parse(localStorage.getItem("UserToken"));
+       if (!token) {
+         return rejectWithValue("Authentication token not found");
+       }
        const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/checkout`, checkoutData, {
          headers: {
-           authorization: `Bearer ${localStorage.getItem("userToken")}`,
+           "Authorization": `Bearer ${token}`
          }
        });
        return response.data;
     } catch (error) {
-        return rejectWithValue(error.response.data.message || "An error occurred");
+        return rejectWithValue(error.response?.data?.message || "An error occurred");
     }
 });
 

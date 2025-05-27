@@ -4,7 +4,6 @@ const User = require('../models/User');
 const protect = async (req, res, next) => {
   let token;
 
-
   if (req.headers && req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     try {
       // Get token from header
@@ -27,13 +26,11 @@ const protect = async (req, res, next) => {
 };
 
 const admin = (req, res, next) => {
-if(req.user&&req.user.role==="admin"){
-next()
+  if (req.user && req.user.role === 'admin') {
+    next();
+  } else {
+    res.status(403).json({ message: "Not authorized as admin" });
+  }
+};
 
-
-}else{
-  res.status(403).json({ message: "not Authorized As Admin" })
-}
-};  
-
-module.exports = { protect,admin};
+module.exports = { protect, admin };

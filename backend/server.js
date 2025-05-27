@@ -42,8 +42,7 @@ app.use("/api/upload", uploadRoutes);
 app.use("/api",subscribeRoutes);
 //admin routes
 app.use("/api/admin/users",adminRoutes)
-
-app.use("/api/admin/product",productAdminRoutes)
+app.use("/api/admin/products",productAdminRoutes)
 app.use("/api/admin/orders",ordersAdminRoutes)
 
 // Error handling middleware

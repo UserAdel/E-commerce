@@ -6,6 +6,15 @@ import SearchBar from "./SearchBar";
 import CartDrawer from "../Layout/CartDrawer";
 import { BiX } from "react-icons/bi";
 import { useSelector } from "react-redux";
+import { createSelector } from "@reduxjs/toolkit";
+
+const selectCart = (state) => state.cart.cart;
+const selectUser = (state) => state.auth.user;
+
+const selectCartItemCount = createSelector(
+  [selectCart],
+  (cart) => cart?.products?.reduce((total, product) => total + product.quantity, 0) || 0
+);
 
 const Navbar = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -15,10 +24,8 @@ const Navbar = () => {
 
   const [navDrawer, setNavDrawer] = useState(false);
   const { cart } = useSelector((state) => state.cart);
-  const { user } = useSelector((state) => state.user || {}); 
-  const cartItemCount =
-    cart?.products?.reduce((total, product) => total + product.quantity, 0) ||
-    0;
+  const user = useSelector(selectUser);
+  const cartItemCount = useSelector(selectCartItemCount);
 
   const toggleNavDrawer = () => {
     setNavDrawer(!navDrawer);
@@ -78,7 +85,6 @@ const Navbar = () => {
             {cartItemCount > 0 && (
               <span className="rounded-full bg-red-800 px-2 py-0.5 absolute -top-1 -right-1 text-xs w-4 h-4 flex items-center justify-center text-white">
                 {cartItemCount}
-                {console.log(cartItemCount)}
               </span>
             )}
           </button>

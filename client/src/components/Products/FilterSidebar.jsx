@@ -77,12 +77,13 @@ const FilterSidebar = () => {
     setsearchParams(params);
     navigate(`?${params.toString()}`);
   };
-const handlePriceRangeChange = (e) => {
-  const newPrice = e.target.value;
-  const newfilter = { ...filter, minPrice: 0, maxPrice: newPrice }; 
-  setFilter(newfilter);
-  updateSearchParams(newfilter);
-};
+
+  const handlePriceRangeChange = (e) => {
+    const newPrice = e.target.value;
+    const newfilter = { ...filter, minPrice: 0, maxPrice: newPrice }; 
+    setFilter(newfilter);
+    updateSearchParams(newfilter);
+  };
 
   const handleFilterChange = (e) => {
     const { name, value, checked, type } = e.target;
@@ -127,17 +128,17 @@ const handlePriceRangeChange = (e) => {
       <div className="mb-4 ">
         <label className="mb-1 text-xl">Genders </label>
         <div className="flex flex-col mt-2">
-          {genders.map((genders) => (
-            <div key={genders} className="flex mb-2">
+          {genders.map((gender) => (
+            <div key={gender} className="flex mb-2">
               <input
                 type="radio"
                 name="gender"
-                value={genders}
+                value={gender}
                 className="size-4 mt-2"
-                checked={filter.gender === genders}
+                checked={filter.gender === gender}
                 onChange={handleFilterChange}
               />
-              <label className="ml-2 text-lg">{genders}</label>
+              <label className="ml-2 text-lg">{gender}</label>
             </div>
           ))}
         </div>

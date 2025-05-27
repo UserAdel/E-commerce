@@ -4,6 +4,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { updateProduct } from "../../redux/slices/adminProductSlice";
 import { fetchProductDetails } from "../../redux/slices/productSlice";
+import { toast } from "react-hot-toast";
+
 const EditProductPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -71,11 +73,15 @@ const EditProductPage = () => {
     }
   };
 
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
-
-    dispatch(updateProduct({ id, productData }));
-    navigate("/admin/products");
+    try {
+      await dispatch(updateProduct({ id, productData })).unwrap();
+      toast.success("Product updated successfully");
+      navigate("/admin/products");
+    } catch (error) {
+      toast.error(error.message || "Failed to update product");
+    }
   };
 
   if (loading) return <p>loading ...</p>;
