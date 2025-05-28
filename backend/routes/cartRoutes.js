@@ -2,6 +2,7 @@ const express = require("express");
 const Cart = require("../models/Cart");
 const Product = require("../models/Product");
 const { protect } = require("../middleware/Authmiddleware");
+const jwt = require("jsonwebtoken");
 
 const router = express.Router();
 
@@ -18,6 +19,20 @@ router.use((req, res, next) => {
   });
   next();
 });
+
+// Helper function to get user ID from token if available
+const getUserIdFromToken = (req) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) return null;
+    
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    return decoded.user.id;
+  } catch (error) {
+    console.log("Error verifying token:", error.message);
+    return null;
+  }
+};
 
 const getCart = async (userId, guestId) => {
   console.log("Getting cart for:", { userId, guestId });
@@ -52,7 +67,11 @@ const getCart = async (userId, guestId) => {
 
 // Allow both guest and authenticated users to add items to cart
 router.post("/", async (req, res) => {
-  const { productId, quantity, size, color, guestId, userId } = req.body;
+  const { productId, quantity, size, color, guestId } = req.body;
+  
+  // Get userId from token if available
+  const userId = getUserIdFromToken(req);
+  
   console.log("Add to cart request received:", { 
     productId: productId?.toString(), 
     quantity, 
@@ -74,19 +93,87 @@ router.post("/", async (req, res) => {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    let cart = await getCart(userId, guestId);
-    if (cart) {
-      console.log("Existing cart found, updating products");
-      const productIndex = cart.products.findIndex(
+    // If user is logged in (has token), always use user cart
+    if (userId) {
+      let userCart = await Cart.findOne({ userId });
+      let guestCart = guestId ? await Cart.findOne({ guestId }) : null;
+
+      console.log("Found carts:", {
+        userCart: userCart ? {
+          id: userCart._id,
+          productCount: userCart.products.length,
+          totalPrice: userCart.totalPrice
+        } : "Not found",
+        guestCart: guestCart ? {
+          id: guestCart._id,
+          productCount: guestCart.products.length,
+          totalPrice: guestCart.totalPrice
+        } : "Not found"
+      });
+
+      // If no user cart exists, create one
+      if (!userCart) {
+        console.log("Creating new user cart");
+        userCart = await Cart.create({
+          userId,
+          products: [],
+          totalPrice: 0
+        });
+      }
+
+      // If guest cart exists, merge its items into user cart
+      if (guestCart && guestCart.products.length > 0) {
+        console.log("Merging guest cart items into user cart");
+        guestCart.products.forEach((guestItem) => {
+          const productIndex = userCart.products.findIndex(
+            (item) =>
+              item.productId.toString() === guestItem.productId.toString() &&
+              item.size === guestItem.size &&
+              item.color === guestItem.color
+          );
+
+          if (productIndex > -1) {
+            userCart.products[productIndex].quantity += guestItem.quantity;
+            console.log("Updated existing item quantity:", {
+              productId: guestItem.productId,
+              newQuantity: userCart.products[productIndex].quantity
+            });
+          } else {
+            userCart.products.push(guestItem);
+            console.log("Added guest item to user cart:", {
+              productId: guestItem.productId,
+              quantity: guestItem.quantity
+            });
+          }
+        });
+
+        // Delete guest cart after merging
+        try {
+          await Cart.findByIdAndDelete(guestCart._id);
+          console.log("Guest cart deleted after merging");
+        } catch (error) {
+          console.error("Error deleting guest cart:", error);
+        }
+      }
+
+      // Add new item to user cart
+      const productIndex = userCart.products.findIndex(
         (p) =>
-          p.productId.toString() === productId &&
+          p.productId.toString() === productId.toString() &&
           p.size === size &&
           p.color === color
       );
+
       if (productIndex > -1) {
-        cart.products[productIndex].quantity += quantity;
+        // Update existing item quantity
+        userCart.products[productIndex].quantity += quantity;
+        console.log("Updated existing item quantity:", {
+          productId,
+          newQuantity: userCart.products[productIndex].quantity
+        });
       } else {
-        cart.products.push({
+        // Add new item
+        const newItem = {
           productId,
           name: product.name,
           image: product.images[0].url,
@@ -94,21 +181,53 @@ router.post("/", async (req, res) => {
           size,
           color,
           quantity,
+        };
+        userCart.products.push(newItem);
+        console.log("Added new item to cart:", {
+          productId,
+          quantity
         });
       }
-      cart.totalPrice = cart.products.reduce((acc, item) => {
-        return acc + item.price * item.quantity;
+
+      // Calculate total price
+      userCart.totalPrice = userCart.products.reduce((acc, item) => {
+        const itemTotal = Number(item.price) * Number(item.quantity);
+        console.log("Calculating item total:", {
+          itemId: item.productId,
+          price: item.price,
+          quantity: item.quantity,
+          itemTotal
+        });
+        return acc + itemTotal;
       }, 0);
-      await cart.save();
-      console.log("Cart updated successfully");
-      return res.status(200).json(cart);
+
+      console.log("Final cart total:", userCart.totalPrice);
+      await userCart.save();
+      console.log("User cart updated successfully with merged items");
+      return res.status(200).json(userCart);
     } else {
-      console.log("No existing cart found, creating new cart");
-      const newCart = await Cart.create({
-        userId: userId || undefined,
-        guestId: guestId || "guest_" + new Date().getTime(),
-        products: [
-          {
+      // Handle guest cart
+      let guestCart = await Cart.findOne({ guestId });
+      
+      if (guestCart) {
+        console.log("Found existing guest cart");
+        const productIndex = guestCart.products.findIndex(
+          (p) =>
+            p.productId.toString() === productId.toString() &&
+            p.size === size &&
+            p.color === color
+        );
+
+        if (productIndex > -1) {
+          // Update existing item quantity
+          guestCart.products[productIndex].quantity += quantity;
+          console.log("Updated existing item quantity:", {
+            productId,
+            newQuantity: guestCart.products[productIndex].quantity
+          });
+        } else {
+          // Add new item
+          const newItem = {
             productId,
             name: product.name,
             image: product.images[0].url,
@@ -116,17 +235,50 @@ router.post("/", async (req, res) => {
             size,
             color,
             quantity,
-          },
-        ],
-        totalPrice: product.price * quantity,
-      });
-      console.log("New cart created:", {
-        id: newCart._id,
-        userId: newCart.userId,
-        guestId: newCart.guestId,
-        productCount: newCart.products.length
-      });
-      res.status(201).json(newCart);
+          };
+          guestCart.products.push(newItem);
+          console.log("Added new item to cart:", {
+            productId,
+            quantity
+          });
+        }
+
+        // Calculate total price
+        guestCart.totalPrice = guestCart.products.reduce((acc, item) => {
+          const itemTotal = Number(item.price) * Number(item.quantity);
+          console.log("Calculating item total:", {
+            itemId: item.productId,
+            price: item.price,
+            quantity: item.quantity,
+            itemTotal
+          });
+          return acc + itemTotal;
+        }, 0);
+
+        console.log("Final cart total:", guestCart.totalPrice);
+        await guestCart.save();
+        console.log("Guest cart updated successfully");
+        return res.status(200).json(guestCart);
+      } else {
+        console.log("Creating new guest cart");
+        const newCart = await Cart.create({
+          guestId: guestId || "guest_" + new Date().getTime(),
+          products: [
+            {
+              productId,
+              name: product.name,
+              image: product.images[0].url,
+              price: product.price,
+              size,
+              color,
+              quantity,
+            },
+          ],
+          totalPrice: Number(product.price) * Number(quantity),
+        });
+        console.log("New guest cart created with total:", newCart.totalPrice);
+        return res.status(201).json(newCart);
+      }
     }
   } catch (error) {
     console.error("Error adding to cart:", error);
@@ -213,7 +365,9 @@ router.put("/", async (req, res) => {
 
 // Allow both guest and authenticated users to delete items from cart
 router.delete("/", async (req, res) => {
-  const { productId, size, color, userId, guestId } = req.body;
+  const { productId, size, color, guestId } = req.body;
+  const userId = getUserIdFromToken(req);
+  
   console.log("Delete request received:", { productId, size, color, userId, guestId });
 
   try {
@@ -263,7 +417,9 @@ router.delete("/", async (req, res) => {
 
 // Keep protect middleware for merge route as it requires authentication
 router.post("/merge", protect, async (req, res) => {
-  const { guestId, userId } = req.body;
+  const { guestId } = req.body;
+  const userId = req.user.id; // Now we can safely use req.user.id since protect middleware ensures it exists
+  
   console.log("Merge request received:", { guestId, userId });
 
   try {
