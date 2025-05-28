@@ -67,48 +67,6 @@ const ProductManagement = () => {
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Validation checks
-      const errors = {};
-
-      // Required fields validation
-      if (!formData.name.trim()) errors.name = "Name is required";
-      if (!formData.sku.trim()) errors.sku = "SKU is required";
-      if (!formData.category) errors.category = "Category is required";
-      if (!formData.description.trim()) errors.description = "Description is required";
-      if (!formData.price) errors.price = "Price is required";
-      if (!formData.countInStock) errors.countInStock = "Stock is required";
-      if (!formData.colors.trim()) errors.colors = "At least one color is required";
-      if (!formData.sizes.trim()) errors.sizes = "At least one size is required";
-      if (!formData.image.trim()) errors.image = "At least one image URL is required";
-
-      // Numeric validation
-      if (formData.price && (isNaN(formData.price) || Number(formData.price) <= 0)) {
-        errors.price = "Price must be a positive number";
-      }
-      if (formData.countInStock && (isNaN(formData.countInStock) || Number(formData.countInStock) < 0)) {
-        errors.countInStock = "Stock must be a non-negative number";
-      }
-
-      // SKU format validation (e.g., CAT-001)
-      const skuRegex = /^[A-Za-z]+-\d{3}$/;
-      if (formData.sku && !skuRegex.test(formData.sku)) {
-        errors.sku = "SKU must be in format: CAT-001";
-      }
-
-      // Image URL validation
-      const imageUrls = formData.image.split(',').map(url => url.trim());
-      const urlRegex = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
-      const invalidUrls = imageUrls.filter(url => !urlRegex.test(url));
-      if (invalidUrls.length > 0) {
-        errors.image = "Invalid image URL format";
-      }
-
-      // If there are validation errors, show them and return
-      if (Object.keys(errors).length > 0) {
-        Object.values(errors).forEach(error => toast.error(error));
-        return;
-      }
-
       // Convert comma-separated strings to arrays
       const formDataToSubmit = {
         ...formData,
