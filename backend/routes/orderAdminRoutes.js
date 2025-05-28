@@ -9,7 +9,7 @@ router.get("/", protect, admin, async (req, res) => {
     console.log("User making request:", req.user._id);
     
     const orders = await Order.find({})
-      .populate("user", "name email")
+      .populate("user", "username email")
       .sort({ createdAt: -1 });
     
     console.log(`Found ${orders.length} orders`);
@@ -38,7 +38,7 @@ router.put("/:id", protect, admin, async (req, res) => {
     console.log("Updating order:", req.params.id);
     console.log("Update data:", req.body);
     
-    const order = await Order.findById(req.params.id).populate("user", "name");
+    const order = await Order.findById(req.params.id).populate("user", "username");
     if (!order) {
       console.log("Order not found:", req.params.id);
       return res.status(404).json({ message: "Order not found" });

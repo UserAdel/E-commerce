@@ -217,17 +217,40 @@ const FilterSidebar = () => {
       </div>
 
       <div className="mb-4">
-        <label className="text-xl">Price Range</label>
+        <label className="text-xl">Brands</label>
+        <div className="flex flex-col mt-2">
+          {brands.map((brand) => (
+            <div key={brand} className="flex items-center">
+              <input
+                type="checkbox"
+                name="brand"
+                value={brand}
+                className="size-4"
+                checked={filter.brand.includes(brand)}
+                onChange={handleFilterChange}
+              />
+              <label className="ml-2 mt-1 text-lg focus:ring-blue-400 border-gray-300">
+                {brand}
+              </label>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mb-4">
         <div className="block text-gray-600 font-medium mb-2">
-          <input
-            type="range"
-            name="priceRange"
-            min={0}
-            value={priceRange[1]}
-            onChange={handlePriceRangeChange}
-            max={100}
-            className="w-full h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer"
-          />
+          <label>
+            <input
+              type="range"
+              name="priceRange"
+              min={0}
+              value={priceRange[1]}
+              onChange={handlePriceRangeChange}
+              max={100}
+              className="w-full h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer"
+            />
+          </label>
+
           <div className="flex justify-between text-gray-600 mt-2">
             <span>$0</span>
             <span>${priceRange[1]}</span>

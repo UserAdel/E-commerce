@@ -45,11 +45,8 @@ const CollectionPage = () => {
   }, []);
 
   const handelClickOutside = useCallback((e) => {
-    if (
-      issidebarOpen &&
-      sidebarRef.current &&
-      !sidebarRef.current.contains(e.target)
-    ) {
+    // Only close sidebar if clicking outside the sidebar
+    if (issidebarOpen && sidebarRef.current && !sidebarRef.current.contains(e.target)) {
       setSidebarOpen(false);
     }
   }, [issidebarOpen]);
@@ -70,44 +67,41 @@ const CollectionPage = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex flex-col md:flex-row gap-8">
-        <div className="md:w-1/5">
-          <div className="md:hidden mb-4">
-            <button
-              onClick={toggleSidebar}
-              className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-lg"
-            >
-              <FaFilter />
-              <span>Filters</span>
-            </button>
-          </div>
-          <div
-            ref={sidebarRef}
-            className={`${
-              issidebarOpen ? "block" : "hidden"
-            } md:block fixed md:static inset-0 bg-white z-50 md:z-auto p-4 md:p-0`}
-          >
-            <FilterSidebar />
-          </div>
-        </div>
-        <div className="md:w-4/5">
-          <SortOptions />
-          <div className="relative">
-            {loading && (
-              <div className="absolute inset-0 bg-white bg-opacity-50 flex items-center justify-center z-10">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
-              </div>
-            )}
-            {!loading && products.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12">
-                <h2 className="text-2xl font-semibold text-gray-700 mb-2">No Products Found</h2>
-                <p className="text-gray-500">Try adjusting your filters to find what you're looking for.</p>
-              </div>
-            ) : (
-              <ProductGrid products={products} loading={loading} error={error} />
-            )}
-          </div>
+    <div className="flex flex-col lg:flex-row">
+      <button 
+        onClick={toggleSidebar} 
+        className="lg:hidden border p-2 flex justify-center items-center mb-4"
+      >
+        <FaFilter className="mr-2" /> Filter
+      </button>
+      
+      {/* Filter Sidebar */}
+      <div 
+        className={`${
+          issidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } fixed z-50 overflow-auto bg-white inset-y-0 left-0 w-64 transition-transform duration-300 lg:static lg:translate-x-0`} 
+        ref={sidebarRef}
+      >
+        <FilterSidebar />
+      </div>
+      
+      <div className="flex-grow p-4">
+        <h2 className="text-2xl uppercase mb-4">All Collections</h2>
+        <SortOptions />
+        <div className="relative">
+          {loading && (
+            <div className="absolute inset-0 bg-white bg-opacity-50 flex items-center justify-center z-10">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
+            </div>
+          )}
+          {!loading && products.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12">
+              <h2 className="text-2xl font-semibold text-gray-700 mb-2">No Products Found</h2>
+              <p className="text-gray-500">Try adjusting your filters to find what you're looking for.</p>
+            </div>
+          ) : (
+            <ProductGrid products={products} loading={loading} error={error} />
+          )}
         </div>
       </div>
     </div>

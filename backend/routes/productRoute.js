@@ -76,9 +76,9 @@ router.post("/", protect, admin, async (req, res) => {
       discountPrice,
       countInStock,
       category,
-      brand,
+      brand: brand ? brand.trim() : "",
       sizes,
-      color,
+      colors: color,
       collection,
       material,
       gender,
@@ -132,9 +132,9 @@ router.put("/:id", protect, admin, async (req, res) => {
       product.discountPrice = discountPrice || product.discountPrice;
       product.countInStock = countInStock || product.countInStock;
       product.category = category || product.category;
-      product.brand = brand || product.brand;
+      product.brand = brand ? brand.trim() : product.brand;
       product.sizes = sizes || product.sizes;
-      product.color = color || product.color;
+      product.colors = color || product.colors;
       product.collection = collection || product.collection;
       product.material = material || product.material;
       product.gender = gender || product.gender;
@@ -194,19 +194,19 @@ router.get("/", async (req, res) => {
       query.category = category;
     }
     if (material) {
-      query.material = { $in: material.split(",") };
+      query.material = { $in: material.split(",").map(m => new RegExp(`^${m.trim()}$`, 'i')) };
     }
 
     if (brand) {
-      query.brand = { $in: brand.split(",") };
+      query.brand = { $in: brand.split(",").map(b => new RegExp(`^${b.trim()}$`, 'i')) };
     }
 
     if (size) {
-      query.sizes = { $in: size.split(",") };
+      query.sizes = { $in: size.split(",").map(s => new RegExp(`^${s.trim()}$`, 'i')) };
     }
 
     if (color) {
-      query.colors = { $in: color.split(",") };
+      query.colors = { $in: color.split(",").map(c => new RegExp(`^${c.trim()}$`, 'i')) };
     }
 
     if (gender) {

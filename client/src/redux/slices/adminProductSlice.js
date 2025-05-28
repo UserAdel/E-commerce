@@ -33,6 +33,7 @@ export const addProduct = createAsyncThunk(
   async (productData, { rejectWithValue }) => {
     try {
       const token = JSON.parse(localStorage.getItem("UserToken"));
+      console.log('Token being sent:', token);
       if (!token) {
         throw new Error("No token found");
       }
@@ -45,6 +46,7 @@ export const addProduct = createAsyncThunk(
 
       return response.data;
     } catch (error) {
+      console.error('Add product error:', error.response?.data || error);
       return rejectWithValue(
         error.response?.data?.message || "Failed to add product"
       );

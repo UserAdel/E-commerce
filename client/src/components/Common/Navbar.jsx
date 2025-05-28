@@ -18,6 +18,7 @@ const selectCartItemCount = createSelector(
 
 const Navbar = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
+  
   const toggleCart = () => {
     setIsCartOpen(!isCartOpen);
   };

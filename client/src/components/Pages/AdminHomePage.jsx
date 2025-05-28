@@ -94,7 +94,7 @@ const AdminHomePage = () => {
                     className="border-b text-gray-500 hover:bg-gray-100"
                   >
                     <td className="px-4 py-2">{order._id}</td>
-                    <td className="px-4 py-2">{order.user?.name || "N/A"}</td>
+                    <td className="px-4 py-2">{order.user?.username || "N/A"}</td>
                     <td className="px-4 py-2">${order.totalPrice?.toFixed(2) || "0.00"}</td>
                     <td className="px-4 py-2">
                       <span className={`px-2 py-1 rounded-full text-xs font-semibold ${

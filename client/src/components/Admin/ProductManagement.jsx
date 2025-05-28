@@ -23,9 +23,22 @@ const ProductManagement = () => {
     category: "",
     countInStock: "",
     image: "",
+    colors: "",
+    sizes: "",
+    material: "",
+    brand: "",
+    sku: "",
+    gender: "Men",
   });
 
   const [editingProduct, setEditingProduct] = useState(null);
+
+  const categories = [
+    "Top Wear",
+    "Bottom Wear"
+  ];
+
+  const genderOptions = ["Men", "Women"];
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -54,11 +67,65 @@ const ProductManagement = () => {
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Validation checks
+      const errors = {};
+
+      // Required fields validation
+      if (!formData.name.trim()) errors.name = "Name is required";
+      if (!formData.sku.trim()) errors.sku = "SKU is required";
+      if (!formData.category) errors.category = "Category is required";
+      if (!formData.description.trim()) errors.description = "Description is required";
+      if (!formData.price) errors.price = "Price is required";
+      if (!formData.countInStock) errors.countInStock = "Stock is required";
+      if (!formData.colors.trim()) errors.colors = "At least one color is required";
+      if (!formData.sizes.trim()) errors.sizes = "At least one size is required";
+      if (!formData.image.trim()) errors.image = "At least one image URL is required";
+
+      // Numeric validation
+      if (formData.price && (isNaN(formData.price) || Number(formData.price) <= 0)) {
+        errors.price = "Price must be a positive number";
+      }
+      if (formData.countInStock && (isNaN(formData.countInStock) || Number(formData.countInStock) < 0)) {
+        errors.countInStock = "Stock must be a non-negative number";
+      }
+
+      // SKU format validation (e.g., CAT-001)
+      const skuRegex = /^[A-Za-z]+-\d{3}$/;
+      if (formData.sku && !skuRegex.test(formData.sku)) {
+        errors.sku = "SKU must be in format: CAT-001";
+      }
+
+      // Image URL validation
+      const imageUrls = formData.image.split(',').map(url => url.trim());
+      const urlRegex = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
+      const invalidUrls = imageUrls.filter(url => !urlRegex.test(url));
+      if (invalidUrls.length > 0) {
+        errors.image = "Invalid image URL format";
+      }
+
+      // If there are validation errors, show them and return
+      if (Object.keys(errors).length > 0) {
+        Object.values(errors).forEach(error => toast.error(error));
+        return;
+      }
+
+      // Convert comma-separated strings to arrays
+      const formDataToSubmit = {
+        ...formData,
+        colors: formData.colors.split(',').map(color => color.trim()),
+        sizes: formData.sizes.split(',').map(size => size.trim()),
+        images: formData.image.split(',').map(url => ({
+          url: url.trim(),
+          altText: formData.name
+        })),
+        sku: formData.sku.trim()
+      };
+
       if (editingProduct) {
-        await dispatch(updateProduct({ id: editingProduct._id, ...formData })).unwrap();
+        await dispatch(updateProduct({ id: editingProduct._id, ...formDataToSubmit })).unwrap();
         toast.success("Product updated successfully");
       } else {
-        await dispatch(addProduct(formData)).unwrap();
+        await dispatch(addProduct(formDataToSubmit)).unwrap();
         toast.success("Product added successfully");
       }
       setFormData({
@@ -68,6 +135,12 @@ const ProductManagement = () => {
         category: "",
         countInStock: "",
         image: "",
+        colors: "",
+        sizes: "",
+        material: "",
+        brand: "",
+        sku: "",
+        gender: "Men",
       });
       setEditingProduct(null);
     } catch (error) {
@@ -83,20 +156,26 @@ const ProductManagement = () => {
       price: product.price?.toString() || "",
       category: product.category || "",
       countInStock: product.countInStock?.toString() || "",
-      image: product.images?.[0]?.url || "",
+      image: product.images?.map(img => img.url).join(", ") || "",
       sku: product.sku || "",
       brand: product.brand || "",
       sizes: product.sizes?.join(",") || "",
       colors: product.colors?.join(",") || "",
       collections: product.collections || "",
       material: product.material || "",
-      gender: product.gender || "",
+      gender: product.gender || "Men",
       isFeatured: product.isFeatured || false,
       isPublished: product.isPublished || false,
       tag: product.tag?.join(",") || "",
       dimension: product.dimension || {},
       weight: product.weight?.toString() || ""
     });
+    
+    // Scroll to form
+    const formElement = document.getElementById('product-form');
+    if (formElement) {
+      formElement.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   const handleDelete = async (productId) => {
@@ -131,7 +210,7 @@ const ProductManagement = () => {
       <h2 className="text-2xl font-bold mb-6">Product Management</h2>
       
       {/* Add/Edit Product Form */}
-      <div className="bg-white p-6 rounded-lg shadow-md mb-8">
+      <div id="product-form" className="bg-white p-6 rounded-lg shadow-md mb-8">
         <h3 className="text-xl font-semibold mb-4">
           {editingProduct ? "Edit Product" : "Add New Product"}
         </h3>
@@ -144,18 +223,53 @@ const ProductManagement = () => {
               value={formData.name}
               onChange={handleFormChange}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              placeholder="Enter product name"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Description</label>
-            <textarea
-              name="description"
-              value={formData.description}
+            <label className="block text-sm font-medium text-gray-700">SKU</label>
+            <input
+              type="text"
+              name="sku"
+              value={formData.sku}
+              onChange={handleFormChange}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              placeholder="Enter product SKU (e.g., CAT-001)"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Category</label>
+            <select
+              name="category"
+              value={formData.category}
               onChange={handleFormChange}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
               required
-            />
+            >
+              <option value="">Select a category</option>
+              {categories.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Gender</label>
+            <select
+              name="gender"
+              value={formData.gender}
+              onChange={handleFormChange}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            >
+              {genderOptions.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700">Price</label>
@@ -165,17 +279,7 @@ const ProductManagement = () => {
               value={formData.price}
               onChange={handleFormChange}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Category</label>
-            <input
-              type="text"
-              name="category"
-              value={formData.category}
-              onChange={handleFormChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              placeholder="Enter product price"
               required
             />
           </div>
@@ -187,17 +291,76 @@ const ProductManagement = () => {
               value={formData.countInStock}
               onChange={handleFormChange}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              placeholder="Enter available stock quantity"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Image URL</label>
+            <label className="block text-sm font-medium text-gray-700">Colors (comma-separated)</label>
+            <input
+              type="text"
+              name="colors"
+              value={formData.colors}
+              onChange={handleFormChange}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              placeholder="e.g., Red, Blue, Green, Black"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Sizes (comma-separated)</label>
+            <input
+              type="text"
+              name="sizes"
+              value={formData.sizes}
+              onChange={handleFormChange}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              placeholder="e.g., S, M, L, XL, XXL"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Material</label>
+            <input
+              type="text"
+              name="material"
+              value={formData.material}
+              onChange={handleFormChange}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              placeholder="e.g., Cotton, Wool, Denim, Polyester"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Brand</label>
+            <input
+              type="text"
+              name="brand"
+              value={formData.brand}
+              onChange={handleFormChange}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              placeholder="e.g., Urban Threads, Modern Fit, Street Style, Beach Breeze, Fashionista, ChicStyle"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Description</label>
+            <textarea
+              name="description"
+              value={formData.description}
+              onChange={handleFormChange}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              placeholder="Enter product description"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Image URLs (comma-separated)</label>
             <input
               type="text"
               name="image"
               value={formData.image}
               onChange={handleFormChange}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              placeholder="e.g., https://example.com/image1.jpg, https://example.com/image2.jpg"
               required
             />
           </div>
@@ -220,6 +383,12 @@ const ProductManagement = () => {
                     category: "",
                     countInStock: "",
                     image: "",
+                    colors: "",
+                    sizes: "",
+                    material: "",
+                    brand: "",
+                    sku: "",
+                    gender: "Men",
                   });
                 }}
                 className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
