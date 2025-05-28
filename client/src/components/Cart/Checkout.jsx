@@ -35,7 +35,7 @@ const Checkout = () => {
     }
     // Only redirect to cart if there are no products and we're not in the payment process
     if (cart.products.length === 0 && !checkoutId) {
-      navigate("/cart");
+      navigate("/");
     }
   }, [user, cart.products, navigate, checkoutId]);
 
