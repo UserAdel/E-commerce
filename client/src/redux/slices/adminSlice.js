@@ -4,7 +4,7 @@ import {
   } from "@reduxjs/toolkit";
   import axios from "axios";
 
-const API_URL = "http://localhost:9000/api/admin";
+const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/admin`;
 
 export const fetchUsers = createAsyncThunk(
   "admin/fetchUsers",
