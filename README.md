@@ -3,6 +3,20 @@
 ## Project Overview
 Developed a complete e-commerce platform with modern web technologies, featuring a responsive React frontend and robust Node.js backend. The application provides a seamless shopping experience with comprehensive admin management capabilities.
 
+## Admin Dashboard Access
+
+To access the admin dashboard features, you will need to log in with an admin user account.
+
+**Demo Admin Credentials:**
+- **Email:** test@test.com
+- **Password:** test@test.com
+
+Once logged in with admin credentials, you will have access to:
+- Product management (Create, Edit, Delete products)
+- Order management and tracking
+- User management system
+- Analytics and reporting dashboard
+
 ## Key Features Implemented
 
 ### 🔐 User Authentication & Authorization
