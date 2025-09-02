@@ -42,8 +42,7 @@ app.use("/api/upload", uploadRoutes);
 app.use("/api",subscribeRoutes);
 //admin routes
 app.use("/api/admin/users",adminRoutes)
-
-app.use("/api/admin/product",productAdminRoutes)
+app.use("/api/admin/products",productAdminRoutes)
 app.use("/api/admin/orders",ordersAdminRoutes)
 
 // Error handling middleware
@@ -55,7 +54,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 9000;
 
 // Connect to database and start server
 const startServer = async () => {

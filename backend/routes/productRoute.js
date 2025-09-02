@@ -76,9 +76,9 @@ router.post("/", protect, admin, async (req, res) => {
       discountPrice,
       countInStock,
       category,
-      brand,
+      brand: brand ? brand.trim() : "",
       sizes,
-      color,
+      colors: color,
       collection,
       material,
       gender,
@@ -132,9 +132,9 @@ router.put("/:id", protect, admin, async (req, res) => {
       product.discountPrice = discountPrice || product.discountPrice;
       product.countInStock = countInStock || product.countInStock;
       product.category = category || product.category;
-      product.brand = brand || product.brand;
+      product.brand = brand ? brand.trim() : product.brand;
       product.sizes = sizes || product.sizes;
-      product.color = color || product.color;
+      product.colors = color || product.colors;
       product.collection = collection || product.collection;
       product.material = material || product.material;
       product.gender = gender || product.gender;
@@ -194,19 +194,19 @@ router.get("/", async (req, res) => {
       query.category = category;
     }
     if (material) {
-      query.material = { $in: material.split(",") };
+      query.material = { $in: material.split(",").map(m => new RegExp(`^${m.trim()}$`, 'i')) };
     }
 
     if (brand) {
-      query.brand = { $in: brand.split(",") };
+      query.brand = { $in: brand.split(",").map(b => new RegExp(`^${b.trim()}$`, 'i')) };
     }
 
     if (size) {
-      query.sizes = { $in: size.split(",") };
+      query.sizes = { $in: size.split(",").map(s => new RegExp(`^${s.trim()}$`, 'i')) };
     }
 
     if (color) {
-      query.color = { $in: [color] };
+      query.colors = { $in: color.split(",").map(c => new RegExp(`^${c.trim()}$`, 'i')) };
     }
 
     if (gender) {
@@ -236,24 +236,34 @@ router.get("/", async (req, res) => {
         case "priceAsc":
           sort = { price: 1 };
           break;
-
         case "priceDesc":
           sort = { price: -1 };
           break;
-
         case "popularity":
           sort = { rating: -1 };
           break;
+        case "createdAt":
+          sort = { createdAt: -1 };
+          break;
         default:
+          sort = { createdAt: -1 };
           break;
       }
+    } else {
+      sort = { createdAt: -1 };
     }
 
-    let products = await Product.find(query).sort(sort).limit(Number(limit));
-    res.send(products);
+    const limitNumber = limit ? Number(limit) : 20;
+    const products = await Product.find(query).sort(sort).limit(limitNumber);
+    
+    if (!products || products.length === 0) {
+      return res.status(200).json([]);
+    }
+
+    res.status(200).json(products);
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: "Server Error" });
+    console.error("Error fetching products:", error);
+    res.status(500).json({ message: "Server Error", error: error.message });
   }
 });
 

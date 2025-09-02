@@ -2,6 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { createCheckout } from "../../redux/slices/checkoutSlice";
+import { toast } from "sonner";
+import axios from "axios";
+import { createOrder } from "../../redux/slices/orderSlice";
+import { clearCart, clearCartFromBackend } from "../../redux/slices/cartSlice";
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -10,7 +14,10 @@ const Checkout = () => {
   const { cart, loading, error } = useSelector((state) => state.cart);
   const { user } = useSelector((state) => state.auth);
 
-  const [checkoutId, setcheckoutId] = useState(null);
+  const [checkoutId, setcheckoutId] = useState(() => {
+    const savedCheckoutId = localStorage.getItem("checkoutId");
+    return savedCheckoutId || null;
+  });
   const [shippingAddress, setShippingAddress] = useState({
     firstname: "",
     lastname: "",
@@ -22,73 +29,156 @@ const Checkout = () => {
   });
 
   useEffect(() => {
-    if (!cart || !cart.products || cart.products.length === 0) {
+    if (!user) {
+      navigate("/login?redirect=checkout");
+      return;
+    }
+    // Only redirect to cart if there are no products and we're not in the payment process
+    if (cart.products.length === 0 && !checkoutId) {
       navigate("/");
     }
-  }, [cart, navigate]);
+  }, [user, cart.products, navigate, checkoutId]);
 
-  const Handelcheckoutsubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Shipping address:", shippingAddress);
-    if (cart && cart.products.length > 0) {
-      const res = dispatch(
+    
+    // Validate shipping address
+    const requiredFields = ['firstname', 'lastname', 'address', 'city', 'postalCode', 'country', 'phone'];
+    const missingFields = requiredFields.filter(field => !shippingAddress[field]);
+    
+    if (missingFields.length > 0) {
+      toast.error(`Please fill in all required fields: ${missingFields.join(', ')}`);
+      return;
+    }
+
+    try {
+      // Create checkout session first
+      const result = await dispatch(
         createCheckout({
-          CheckoutItems: cart.products,
-          shippingAddress,
+          CheckoutItems: cart.products.map(item => ({
+            productId: item.productId._id || item.productId,
+            name: item.name,
+            image: item.image,
+            price: item.price,
+            quantity: item.quantity,
+            size: item.size,
+            color: item.color
+          })),
+          shippingAddress: `${shippingAddress.firstname} ${shippingAddress.lastname}, ${shippingAddress.address}`,
+          city: shippingAddress.city,
+          postalCode: shippingAddress.postalCode,
+          country: shippingAddress.country,
           paymentMethod: "Paypal",
           totalPrice: cart.totalPrice,
         })
-      );
-      if (res.payload && res.payload._id) {
-        setcheckoutId(res.payload._id);
+      ).unwrap();
+
+      if (result._id) {
+        setcheckoutId(result._id);
+        localStorage.setItem("checkoutId", result._id);
+        toast.success("Checkout created successfully");
+        // Now proceed with payment
+        handlePaymentSuccess({
+          transactionId: `PAY-${Date.now()}`,
+        });
       }
+    } catch (error) {
+      console.error("Checkout error:", error);
+      toast.error(error.message || "Failed to create checkout");
     }
   };
 
- const handlePaymentSuccess = async (details) => {
+  const handlePaymentSuccess = async (paymentResult) => {
     try {
-      const response = await axios.put(
-        `${import.meta.env.VITE_BACKEND_URL}/api/checkout/${checkoutId}/pay`,
-        { paymentStatus: "paid", paymentDetails: details },
+      const token = JSON.parse(localStorage.getItem("UserToken"));
+      if (!token) {
+        toast.error("Authentication token not found");
+        navigate("/login");
+        return;
+      }
+
+      const currentCheckoutId = checkoutId || localStorage.getItem("checkoutId");
+      if (!currentCheckoutId) {
+        toast.error("Checkout session not found. Please try again.");
+        return;
+      }
+
+      // First finalize the checkout
+      const checkoutResponse = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/checkout/${currentCheckoutId}/pay`,
         {
+          method: "PUT",
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("userToken")}`,
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
+          body: JSON.stringify({
+            paymentStatus: "paid",
+            paymentDetails: {
+              status: "completed",
+              transactionId: paymentResult.transactionId,
+              paymentMethod: "PayPal",
+            },
+          }),
         }
       );
-     
-        await handleFinalizeCheckout(checkoutId);
+
+      if (!checkoutResponse.ok) {
+        const errorData = await checkoutResponse.json();
+        throw new Error(errorData.message || "Failed to finalize checkout");
+      }
+
+      // Create order data
+      const orderData = {
+        orderItems: cart.products.map((item) => ({
+          productId: item.productId._id || item.productId,
+          name: item.name,
+          quantity: item.quantity,
+          image: item.image,
+          price: item.price,
+          size: item.size,
+          color: item.color
+        })),
+        shippingAddress: {
+          firstname: shippingAddress.firstname,
+          lastname: shippingAddress.lastname,
+          address: shippingAddress.address,
+          city: shippingAddress.city,
+          postalCode: shippingAddress.postalCode,
+          country: shippingAddress.country,
+          phone: shippingAddress.phone
+        },
+        paymentMethod: "PayPal",
+        totalPrice: cart.totalPrice,
+        paymentDetails: {
+          status: "completed",
+          transactionId: paymentResult.transactionId,
+          paymentMethod: "PayPal",
+        },
+      };
+
+      // Create the order
+      const result = await dispatch(createOrder(orderData)).unwrap();
       
-    
-    navigate("/order-confirmation");
+      // Clear the cart from backend first
+      await dispatch(clearCartFromBackend({ userId: user._id })).unwrap();
+      
+      // Then clear the cart in Redux store and localStorage
+      dispatch(clearCart());
+      
+      // Clear the checkout ID from localStorage
+      localStorage.removeItem("checkoutId");
+
+      // Navigate to order confirmation
+      navigate("/order-confirmation");
     } catch (error) {
-      console.error(error);
+      console.error("Payment error:", error);
+      toast.error(error.message || "Payment failed. Please try again.");
     }
   };
 
-  const handleFinalizeCheckout = async (checkoutId) => {
-    try {
-      const response = await axios.post(
-        `${
-          import.meta.env.VITE_BAKCEND_URL
-        }/api/checkout/${checkoutId}/finalize`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("userToken")}`,
-          },
-        }
-      );
-    
-        navigate("/order-confirmation");
-  
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  if (loading) return <p> loading cart ...</p>;
-  if (error) return <p> Error:{error}</p>;
+  if (loading) return <p>Loading cart...</p>;
+  if (error) return <p>Error: {error}</p>;
   if (!cart || !cart.products || cart.products.length === 0) {
     return <p>Your cart is empty</p>;
   }
@@ -97,9 +187,9 @@ const Checkout = () => {
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-7xl p-4 mx-auto">
       {/* Left side - Form */}
       <div className="p-4 order-2 md:order-1">
-        <h1 className="uppercase text-2xl tracking-tighter m ">checkout</h1>
+        <h1 className="uppercase text-2xl tracking-tighter m">checkout</h1>
         <h1 className="text-lg mb-2">Contact Details</h1>
-        <form onSubmit={Handelcheckoutsubmit}>
+        <form onSubmit={handleSubmit}>
           <label className="text-gray-600 text-lg block">Email</label>
           <input
             type="text"
@@ -206,24 +296,24 @@ const Checkout = () => {
             }
             value={shippingAddress.phone}
           />
-          {!checkoutId ?(          <button
-            type="submit"
-            className="bg-black text-lg font-semibold  hover:bg-gray-800 w-full text-white py-3 rounded"
-          >
-            Continue to Payment
-          </button>):(
-            <div> 
-            <h3 className="text-leg mb-4"> pay with Paypal</h3>
-            <button onClick={handlePaymentSuccess}>
-              Paypal
+          {!checkoutId ? (
+            <button
+              type="submit"
+              className="bg-black text-lg font-semibold hover:bg-gray-800 w-full text-white py-3 rounded"
+            >
+              Proceed to Payment
             </button>
-
-
+          ) : (
+            <div className="mt-4">
+              <button
+                type="button"
+                onClick={() => handlePaymentSuccess({ transactionId: `PAY-${Date.now()}` })}
+                className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 w-full"
+              >
+                Pay Now
+              </button>
             </div>
-
-
           )}
-
         </form>
       </div>
 
@@ -256,7 +346,7 @@ const Checkout = () => {
         {/* Added total price summary */}
         <div className="flex justify-between p-4 font-bold text-lg">
           <span>Total:</span>
-          <span>${cart.totalPrice}</span>
+          <span>${cart.totalPrice.toFixed(2)}</span>
         </div>
       </div>
     </div>

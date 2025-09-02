@@ -30,9 +30,9 @@ const AdminSidebar = () => {
       </div>
 
       <div>
-        <h2 className="text-center text-xl font-medium mb-6">
+        <Link to="/admin" className="text-center text-xl font-medium mb-8">
           Admin Dashboard
-        </h2>
+        </Link>
         <nav className="">
           <NavLink
             to="/admin/users"
@@ -81,11 +81,10 @@ const AdminSidebar = () => {
             <span>Shop</span>
           </NavLink>
         </nav>
-        <div className="mt-6">
-            <button onClick={handleLogout} className=" bg-red-500 hover:bg-600 space-x-2 flex items-center justify-center text-white rounded text-xl w-full p-2">
+        <div className="mt-12 mb-6">
+            <button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 space-x-2 flex items-center justify-center text-white rounded text-xl w-full p-3">
             <FaSignOutAlt className=""/>  <span>logout</span>
             </button>
-            
         </div>
       </div>
     </div>

@@ -32,10 +32,10 @@ const Home = () => {
         const response = await axios.get(
           `${import.meta.env.VITE_BACKEND_URL}/api/products/best-seller`
         );
-        console.log('Best seller response:', response.data);
-        setBestSellerProduct(response.data[0]); // Take the first product from the array
+        if (response.data && response.data.length > 0) {
+          setBestSellerProduct(response.data[0]);
+        }
       } catch (error) {
-        console.error('Error fetching best seller:', error);
         setBestSellerError(error.message);
       } finally {
         setBestSellerLoading(false);
@@ -51,7 +51,9 @@ const Home = () => {
       <NewArrivals />
       <h2 className="text-3xl text-center font-bold mb-4">Best Seller</h2>
       {bestSellerLoading ? (
-        <p className="text-center">Loading best seller product...</p>
+        <div className="flex justify-center items-center min-h-[400px]">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
+        </div>
       ) : bestSellerError ? (
         <p className="text-center text-red-500">Error loading best seller: {bestSellerError}</p>
       ) : bestSellerProduct ? (

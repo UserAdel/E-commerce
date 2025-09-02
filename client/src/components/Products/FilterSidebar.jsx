@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
 
 const FilterSidebar = () => {
-  const [searchParams, setsearchParams] = useSearchParams({});
-  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [filter, setFilter] = useState({
     category: "",
     gender: "",
@@ -48,65 +46,74 @@ const FilterSidebar = () => {
     "Fashionista",
     "ChicStyle",
   ];
-  const genders = ["Men", "Woman"];
+  const genders = ["Men", "Women"];
 
   useEffect(() => {
-    const prams = Object.fromEntries([...searchParams]);
+    const params = Object.fromEntries([...searchParams]);
     setFilter({
-      category: prams.category || "",
-      gender: prams.gender || "",
-      color: prams.color || "",
-      size: prams.size ? prams.size.split(",") : [],
-      material: prams.material ? prams.material.split(",") : [],
-      brand: prams.brand ? prams.brand.split(",") : [],
-      minPrice: prams.minPrice || "",
-      maxPrice: prams.maxPrice || "100",
+      category: params.category || "",
+      gender: params.gender || "",
+      color: params.color || "",
+      size: params.size ? params.size.split(",") : [],
+      material: params.material ? params.material.split(",") : [],
+      brand: params.brand ? params.brand.split(",") : [],
+      minPrice: params.minPrice || "",
+      maxPrice: params.maxPrice || "100",
     });
-    setPriceRange([prams.minPrice || 0, prams.maxPrice || 100]);
+    setPriceRange([params.minPrice || 0, params.maxPrice || 100]);
   }, [searchParams]);
 
-  const updateSearchParams = (newfilters) => {
-    const params = new URLSearchParams();
-    Object.keys(newfilters).forEach((key) => {
-      if (Array.isArray(newfilters[key]) && newfilters[key].length) {
-        params.append(key, newfilters[key].join(","));
-      } else {
-        params.append(key, newfilters[key]);
+  const updateSearchParams = (newFilters) => {
+    const params = new URLSearchParams(searchParams);
+    
+    // Clear existing params
+    params.forEach((_, key) => params.delete(key));
+    
+    // Add new params
+    Object.entries(newFilters).forEach(([key, value]) => {
+      if (Array.isArray(value) && value.length > 0) {
+        params.set(key, value.join(","));
+      } else if (value && value !== "") {
+        params.set(key, value);
       }
     });
-    setsearchParams(params);
-    navigate(`?${params.toString()}`);
+    
+    setSearchParams(params, { replace: true });
   };
-const handlePriceRangeChange = (e) => {
-  const newPrice = e.target.value;
-  const newfilter = { ...filter, minPrice: 0, maxPrice: newPrice }; 
-  setFilter(newfilter);
-  updateSearchParams(newfilter);
-};
+
+  const handlePriceRangeChange = (e) => {
+    const newPrice = e.target.value;
+    const newFilter = { ...filter, minPrice: 0, maxPrice: newPrice };
+    setFilter(newFilter);
+    updateSearchParams(newFilter);
+  };
 
   const handleFilterChange = (e) => {
     const { name, value, checked, type } = e.target;
-    let newfilter = { ...filter };
+    let newFilter = { ...filter };
+    
     if (type === "checkbox") {
       if (checked) {
-        newfilter[name] = [...newfilter[name], value];
+        newFilter[name] = [...newFilter[name], value];
       } else {
-        newfilter[name] = newfilter[name].filter((item) => item !== value);
+        newFilter[name] = newFilter[name].filter((item) => item !== value);
       }
+    } else if (type === "radio") {
+      newFilter[name] = value;
     } else {
-      newfilter[name] = value;
+      newFilter[name] = value;
     }
 
-    setFilter(newfilter);
-    updateSearchParams(newfilter);
+    setFilter(newFilter);
+    updateSearchParams(newFilter);
   };
 
   return (
     <div className="p-4">
-      <h2 className="text-2xl font-semibold mb-4"> Filters</h2>
+      <h2 className="text-2xl font-semibold mb-4">Filters</h2>
 
       <div className="mb-4">
-        <label className="mb-1 text-xl">categories </label>
+        <label className="mb-1 text-xl">Categories</label>
         <div className="flex flex-col mt-2">
           {categories.map((category) => (
             <div key={category} className="flex mb-2">
@@ -124,77 +131,106 @@ const handlePriceRangeChange = (e) => {
         </div>
       </div>
 
-      <div className="mb-4 ">
-        <label className="mb-1 text-xl">Genders </label>
+      <div className="mb-4">
+        <label className="mb-1 text-xl">Genders</label>
         <div className="flex flex-col mt-2">
-          {genders.map((genders) => (
-            <div key={genders} className="flex mb-2">
+          {genders.map((gender) => (
+            <div key={gender} className="flex mb-2">
               <input
                 type="radio"
                 name="gender"
-                value={genders}
+                value={gender}
                 className="size-4 mt-2"
-                checked={filter.gender === genders}
+                checked={filter.gender === gender}
                 onChange={handleFilterChange}
               />
-              <label className="ml-2 text-lg">{genders}</label>
+              <label className="ml-2 text-lg">{gender}</label>
             </div>
           ))}
         </div>
       </div>
 
       <div className="mb-4">
-        <label className=" text-xl">colors </label>
-        <div className="flex flex-wrap ">
+        <label className="text-xl">Colors</label>
+        <div className="flex flex-wrap mt-2">
           {colors.map((color) => (
-            <button
-              key={color}
-              name="color"
-              value={color}
-              onClick={handleFilterChange}
-              style={{ backgroundColor: color.toLowerCase() }}
-              className={`mr-5 mt-2 w-8 h-8 hover:scale-105 cursor-pointer rounded-full border-2 flex items-center justify-center ${
-                filter.color === color ? "ring-2 ring-blue-500" : ""
-              }`}
-            />
-          ))}
-        </div>
-      </div>
-
-      <div className="mb-4 ">
-        <label className=" text-xl ">sizes </label>
-        <div className="flex flex-col mt-2">
-          {sizes.map((sizes) => (
-            <div key={sizes} className="flex items-center ">
+            <div key={color} className="mr-5 mt-2">
               <input
-                type="checkbox"
-                name="size"
-                value={sizes}
-                checked={filter.size.includes(sizes)}
-                className="size-4 focus:ring-blue-400 border-gray-300"
+                type="radio"
+                name="color"
+                value={color}
+                id={`color-${color}`}
+                checked={filter.color === color}
                 onChange={handleFilterChange}
+                className="hidden"
               />
-              <label className="ml-2 mt-1 text-lg ">{sizes}</label>
+              <label
+                htmlFor={`color-${color}`}
+                style={{ backgroundColor: color.toLowerCase() }}
+                className={`w-8 h-8 hover:scale-105 cursor-pointer rounded-full border-2 flex items-center justify-center ${
+                  filter.color === color ? "ring-2 ring-blue-500" : ""
+                }`}
+              />
             </div>
           ))}
         </div>
       </div>
 
-      <div className="mb-4 ">
-        <label className=" text-xl ">materials </label>
+      <div className="mb-4">
+        <label className="text-xl">Sizes</label>
+        <div className="flex flex-col mt-2">
+          {sizes.map((size) => (
+            <div key={size} className="flex items-center">
+              <input
+                type="checkbox"
+                name="size"
+                value={size}
+                checked={filter.size.includes(size)}
+                className="size-4 focus:ring-blue-400 border-gray-300"
+                onChange={handleFilterChange}
+              />
+              <label className="ml-2 mt-1 text-lg">{size}</label>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mb-4">
+        <label className="text-xl">Materials</label>
         <div className="flex flex-col mt-2">
           {materials.map((material) => (
-            <div key={material} className="flex items-center ">
+            <div key={material} className="flex items-center">
               <input
                 type="checkbox"
                 name="material"
                 value={material}
-                className="size-4 "
+                className="size-4"
                 checked={filter.material.includes(material)}
                 onChange={handleFilterChange}
               />
               <label className="ml-2 mt-1 text-lg focus:ring-blue-400 border-gray-300">
                 {material}
+              </label>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mb-4">
+        <label className="text-xl">Brands</label>
+        <div className="flex flex-col mt-2">
+          {brands.map((brand) => (
+            <div key={brand} className="flex items-center">
+              <input
+                type="checkbox"
+                name="brand"
+                value={brand}
+                className="size-4"
+                checked={filter.brand.includes(brand)}
+                onChange={handleFilterChange}
+              />
+              <label className="ml-2 mt-1 text-lg focus:ring-blue-400 border-gray-300">
+                {brand}
               </label>
             </div>
           ))}

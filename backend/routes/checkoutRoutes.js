@@ -5,6 +5,7 @@ const Cart = require("../models/Cart");
 const Product = require("../models/Product");
 const Order = require("../models/Order");
 const {protect} = require("../middleware/Authmiddleware.js");
+const mongoose = require("mongoose");
 const router = express.Router();
 
 /**
@@ -14,7 +15,7 @@ const router = express.Router();
  */
 router.post("/", protect, async(req, res) => {
     // Destructure required fields from request body
-    const {CheckoutItems, shippingAddress, paymentMethod, totalPrice} = req.body;
+    const {CheckoutItems, shippingAddress, city, postalCode, country, paymentMethod, totalPrice} = req.body;
     
     // Validate that there are items in the cart
     if(!CheckoutItems || CheckoutItems.length === 0) {
@@ -22,22 +23,32 @@ router.post("/", protect, async(req, res) => {
     }   
 
     try {
+        // Convert productIds to ObjectIds
+        const formattedItems = CheckoutItems.map(item => ({
+            ...item,
+            productId: new mongoose.Types.ObjectId(item.productId)
+        }));
+
         // Create a new checkout record in the database
         const newCheckout = await Checkout.create({
             user: req.user._id,
-            CheckoutItems: CheckoutItems,
+            CheckoutItems: formattedItems,
             shippingAddress,
+            city,
+            postalCode,
+            country,
             paymentMethod,
             totalPrice,
             paymentStatus: "pending",
             isPaid: false,
-        })
+        });
+        
         console.log("Checkout created for user", req.user._id);
         res.status(201).json(newCheckout);
 
     } catch (error) {
-        console.error("Error creating checkout", error);
-        res.status(500).json({message: "Error creating checkout"});
+        console.error("Error creating checkout:", error);
+        res.status(500).json({message: error.message || "Error creating checkout"});
     }
 });
 
@@ -93,15 +104,30 @@ router.post("/:id/finalize", protect, async(req, res) => {
             // Create a new order from the checkout details
             const finalOrder = await Order.create({
                 user: checkout.user,
-                orderItems: checkout.CheckoutItems,
-                shippingAddress: checkout.shippingAddress,
+                orderItems: checkout.CheckoutItems.map(item => ({
+                    productId: item.productId,
+                    name: item.name,
+                    image: item.image,
+                    price: item.price,
+                    quantity: item.quantity,
+                    size: item.size,
+                    color: item.color
+                })),
+                shippingAddress: {
+                    address: checkout.shippingAddress,
+                    city: checkout.city,
+                    postalCode: checkout.postalCode,
+                    country: checkout.country
+                },
                 paymentMethod: checkout.paymentMethod,
                 totalPrice: checkout.totalPrice,
                 isPaid: true,
                 paidAt: checkout.paidAt,
                 isDelivered: false,
                 paymentStatus: "paid",
-                paymentDetails: checkout.paymentDetails
+                paymentDetails: checkout.paymentDetails,
+                status: "processing",
+                createdAt: new Date()
             });
             
             // Mark checkout as finalized
@@ -110,9 +136,14 @@ router.post("/:id/finalize", protect, async(req, res) => {
             await checkout.save();
             
             // Clear the user's cart after successful order creation
-            await Cart.findOneAndDelete({user: checkout.user});
+            const deletedCart = await Cart.findOneAndDelete({user: checkout.user});
+            console.log("Cart deleted:", deletedCart ? "Yes" : "No");
             
-            res.status(201).json(finalOrder);
+            res.status(201).json({
+                success: true,
+                message: "Order created successfully",
+                order: finalOrder
+            });
         } else if(checkout.isFinalized) {
             res.status(400).json({message: "Checkout already finalized"});
         } else {
@@ -120,7 +151,11 @@ router.post("/:id/finalize", protect, async(req, res) => {
         }
     } catch (error) {
         console.error("Error finalizing checkout:", error);
-        res.status(500).json({message: "Server error"});
+        res.status(500).json({
+            success: false,
+            message: error.message || "Error creating order",
+            error: error.stack
+        });
     }
 });
 

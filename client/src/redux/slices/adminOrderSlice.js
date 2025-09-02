@@ -1,21 +1,30 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-// Async thunk to fetch all orders for admin
+const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/admin`;
+
+// Fetch all orders
 export const fetchAllOrders = createAsyncThunk(
-  "admin/fetchAllOrders",
+  "adminOrders/fetchAll",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/api/admin/orders`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("userToken")}`,
-          },
-        }
-      );
-      return response.data; // Return the fetched orders
+      const token = JSON.parse(localStorage.getItem("UserToken"));
+      if (!token) {
+        console.error("No token found in localStorage");
+        return rejectWithValue("Authentication token not found");
+      }
+
+      console.log("Fetching orders with token:", token);
+      const response = await axios.get(`${API_URL}/orders`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      
+      console.log("Orders response:", response.data);
+      return response.data;
     } catch (error) {
+      console.error("Error in fetchAllOrders:", error.response?.data || error);
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch orders"
       );
@@ -23,22 +32,31 @@ export const fetchAllOrders = createAsyncThunk(
   }
 );
 
-// Async thunk to update order status
+// Update order status
 export const updateOrderStatus = createAsyncThunk(
-  "admin/updateOrderStatus",
+  "adminOrders/updateStatus",
   async ({ orderId, status }, { rejectWithValue }) => {
     try {
+      const token = JSON.parse(localStorage.getItem("UserToken"));
+      if (!token) {
+        return rejectWithValue("Authentication token not found");
+      }
+
+      // Ensure status is lowercase
+      const lowercaseStatus = status.toLowerCase();
+
       const response = await axios.put(
-        `${import.meta.env.VITE_BACKEND_URL}/api/admin/orders/${orderId}`,
-        { status },
+        `${API_URL}/orders/${orderId}`,
+        { status: lowercaseStatus },
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("userToken")}`,
+            Authorization: `Bearer ${token}`,
           },
         }
       );
       return response.data;
     } catch (error) {
+      console.error("Error updating order status:", error.response?.data || error);
       return rejectWithValue(
         error.response?.data?.message || "Failed to update order status"
       );
@@ -46,17 +64,23 @@ export const updateOrderStatus = createAsyncThunk(
   }
 );
 
-// Admin order slice
+const initialState = {
+  orders: [],
+  loading: false,
+  error: null,
+};
+
 const adminOrderSlice = createSlice({
   name: "adminOrders",
-  initialState: {
-    orders: [],
-    loading: false,
-    error: null,
+  initialState,
+  reducers: {
+    clearError: (state) => {
+      state.error = null;
+    },
   },
-  reducers: {},
   extraReducers: (builder) => {
     builder
+      // Fetch all orders
       .addCase(fetchAllOrders.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -69,18 +93,17 @@ const adminOrderSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+      // Update order status
       .addCase(updateOrderStatus.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(updateOrderStatus.fulfilled, (state, action) => {
         state.loading = false;
-        // Update the specific order in the state
         const updatedOrder = action.payload;
-        const index = state.orders.findIndex((order) => order._id === updatedOrder._id);
-        if (index !== -1) {
-          state.orders[index] = updatedOrder;
-        }
+        state.orders = state.orders.map((order) =>
+          order._id === updatedOrder._id ? updatedOrder : order
+        );
       })
       .addCase(updateOrderStatus.rejected, (state, action) => {
         state.loading = false;
@@ -89,4 +112,5 @@ const adminOrderSlice = createSlice({
   },
 });
 
+export const { clearError } = adminOrderSlice.actions;
 export default adminOrderSlice.reducer;

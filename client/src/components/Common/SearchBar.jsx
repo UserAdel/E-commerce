@@ -1,18 +1,20 @@
 import React from 'react'
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FaSearch } from "react-icons/fa";
 import { BiX } from "react-icons/bi";
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { fetchProductsByFilters } from '../../redux/slices/productSlice';
 
 const SearchBar = () => {
     const [isOpen, setIsOpen] = useState(false);
-    const dispatch=useDispatch();
+    const dispatch = useDispatch();
     const navigate = useNavigate();
 
     const toggle = () => {
       setIsOpen(!isOpen);
     };
+
     const [search, setSearch] = useState('');
     const handleChange = (e) => {
       setSearch(e.target.value);
@@ -20,9 +22,11 @@ const SearchBar = () => {
     
     const handleSubmit = (e) => {
       e.preventDefault();
-      dispatch(setFilters({search:search}))
-      dispatch(fetchProductsByFilters({search:search}))
-      navigate(`/collections/all?search=${search}`)
+      if (search.trim()) {
+        dispatch(fetchProductsByFilters({ search: search.trim() }));
+        navigate(`/collections/all?search=${encodeURIComponent(search.trim())}`);
+        setIsOpen(false);
+      }
     };
 
     return (

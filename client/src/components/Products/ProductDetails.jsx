@@ -18,7 +18,7 @@ const {selectedProduct,loading,error,similarProducts}=useSelector((state)=>state
 
 const {user,guestId}=useSelector((state)=>state.auth)
 
-  const [mainImage, setMainImage] = useState("");
+  const [mainImage, setMainImage] = useState(null);
   const [selectedSizes, setselectedSizes] = useState(null);
   const [selectedColors, setselectedColors] = useState(null);
   const [quantity, setQuantity] = useState(1);
@@ -83,7 +83,7 @@ if(error){
             <img
               key={index}
               src={image.url}
-              alt={image.altText}
+              alt={image.altText || `Product image ${index + 1}`}
               draggable="false"
               onClick={() => setMainImage(image.url)}
               className={`w-20 h-20 mb-4 rounded-lg ${
@@ -92,13 +92,15 @@ if(error){
             />
           ))}
         </div>
-        <div className=" max-w-4xl ">
-          <img
-            src={mainImage}
-            alt=" main image"
-            draggable="false"
-            className="object- rounded-lg"
-          />
+        <div className="max-w-4xl">
+          {mainImage && (
+            <img
+              src={mainImage}
+              alt="Main product image"
+              draggable="false"
+              className="object-cover rounded-lg"
+            />
+          )}
         </div>
         {/* Mobile Thumbnail */}
         <div className="md:hidden flex overscroll-x-scroll space-x-4 mb-4">
@@ -129,6 +131,7 @@ if(error){
             <h2 className="text-lg mb-1">color :</h2>
             {selectedProduct.colors.map((color) => (
               <button
+                key={color}
                 onClick={() => setselectedColors(color)}
                 style={{ backgroundColor: color }}
                 className={`rounded-full mr-2 p-1  border-4 h-8 w-8 ${
@@ -143,6 +146,7 @@ if(error){
             <h4 className="text-lg">Size :</h4>
             {selectedProduct.sizes.map((size) => (
               <button
+                key={size}
                 onClick={() => setselectedSizes(size)}
                 className={`border border-gray-300  text-lg mr-2 min-w-7 ${
                   selectedSizes === size ? "text-white bg-black" : ""

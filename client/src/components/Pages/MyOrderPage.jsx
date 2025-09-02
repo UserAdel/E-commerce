@@ -1,23 +1,50 @@
-import React from "react";
-import { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { fetchUserOrders } from "../../redux/slices/orderSlice";
+import { toast } from "sonner";
 
 const MyOrderPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { orders, loading, error } = useSelector((state) => state.orders);
+  const { orders, loading, error } = useSelector((state) => state.order);
+  const { user } = useSelector((state) => state.auth);
 
   useEffect(() => {
-    dispatch(fetchUserOrders());
-  }, [dispatch]);
+    if (!user) {
+      navigate("/login");
+      return;
+    }
 
-  const handelRowClick = (id) => {
+    const token = JSON.parse(localStorage.getItem("UserToken"));
+    if (!token) {
+      toast.error("Please log in to view your orders");
+      navigate("/login");
+      return;
+    }
+
+    dispatch(fetchUserOrders());
+  }, [dispatch, user, navigate]);
+
+  const handleRowClick = (id) => {
     navigate(`/order/${id}`);
   };
 
-  if (loading) return <p>loading ...</p>;
-  if (error) return <p>error {error}</p>;
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-xl">Loading orders...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-xl text-red-500">Error: {error}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto p-4 sm:p-6">
@@ -36,17 +63,17 @@ const MyOrderPage = () => {
             </tr>
           </thead>
           <tbody>
-            {orders.length > 0 ? (
+            {orders && orders.length > 0 ? (
               orders.map((order) => (
                 <tr
                   key={order._id}
-                  onClick={() => handelRowClick(order._id)}
+                  onClick={() => handleRowClick(order._id)}
                   className="border-b hover:border-gray-50 cursor-pointer"
                 >
                   <td className="py-2 px-2 sm:py-4 sm:px-4">
                     <img
-                      src={order.orderItems[0].image}
-                      alt={order.orderItems[0].image}
+                      src={order.orderItems[0]?.image}
+                      alt={order.orderItems[0]?.name}
                       className="w-10 h-10 sm:w-1/2 sm:h-12 object-cover rounded-lg"
                     />
                   </td>
@@ -83,8 +110,8 @@ const MyOrderPage = () => {
               ))
             ) : (
               <tr>
-                <td colSpan={7} className="text-center text-gray-500 py-4">
-                  No orders found.
+                <td colSpan="7" className="py-4 text-center text-gray-500">
+                  No orders found
                 </td>
               </tr>
             )}

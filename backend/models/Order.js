@@ -83,11 +83,11 @@ const orderSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["Processing", "Shipped", "Delivered", "Cancelled"], 
-      default: "Processing",
+      enum: ["pending", "processing", "shipped", "delivered", "cancelled"],
+      default: "pending",
     },
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model("order", orderSchema); 
+module.exports = mongoose.model("Order", orderSchema); 

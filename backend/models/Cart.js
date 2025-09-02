@@ -4,10 +4,22 @@ const cartSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-    required: true,
+    required: function() {
+      return !this.guestId && !this.userId; // Only required if neither guestId nor userId is present
+    }
+  },
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: function() {
+      return !this.guestId && !this.user; // Only required if neither guestId nor user is present
+    }
   },
   guestId: {
     type: String,
+    required: function() {
+      return !this.user && !this.userId; // Only required if neither user nor userId is present
+    }
   },
   products: [
     {
