@@ -26,13 +26,13 @@ const Register = () => {
         try {
           if (cart?.products?.length > 0 && guestId) {
             await dispatch(mergeCart({ guestId, user })).unwrap();
-            // بعد نجاح الدمج، نقوم بتحديث السلة
+            
             await dispatch(fetchCart({ userId: user._id })).unwrap();
           }
           navigate(isCheckoutRedirect ? "/checkout" : "/");
         } catch (error) {
           console.error("Error during registration process:", error);
-          // حتى في حالة الخطأ، نتابع التنقل
+       
           navigate(isCheckoutRedirect ? "/checkout" : "/");
         }
       }
