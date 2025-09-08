@@ -1,11 +1,18 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAllOrders, updateOrderStatus } from "../../redux/slices/adminOrderSlice";
+import {
+  fetchAllOrders,
+  updateOrderStatus,
+} from "../../redux/slices/adminOrderSlice";
 import { toast } from "sonner";
 
 const OrderManagementPage = () => {
   const dispatch = useDispatch();
-  const { orders = [], loading, error } = useSelector((state) => state.adminOrder) || {};
+  const {
+    orders = [],
+    loading,
+    error,
+  } = useSelector((state) => state.adminOrder) || {};
   const { user } = useSelector((state) => state.auth);
 
   useEffect(() => {
@@ -30,7 +37,9 @@ const OrderManagementPage = () => {
 
   const handleStatusChange = async (orderId, newStatus) => {
     try {
-      await dispatch(updateOrderStatus({ orderId, status: newStatus })).unwrap();
+      await dispatch(
+        updateOrderStatus({ orderId, status: newStatus })
+      ).unwrap();
       toast.success("Order status updated successfully");
     } catch (error) {
       console.error("Error updating order status:", error);
@@ -41,7 +50,7 @@ const OrderManagementPage = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-xl">Loading orders...</p>
+        <div className="md:ml-16 animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
       </div>
     );
   }
@@ -92,7 +101,9 @@ const OrderManagementPage = () => {
                     <div className="text-sm font-medium text-gray-900">
                       {order.user?.username || "N/A"}
                     </div>
-                    <div className="text-sm text-gray-500">{order.user?.email || "N/A"}</div>
+                    <div className="text-sm text-gray-500">
+                      {order.user?.email || "N/A"}
+                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {new Date(order.createdAt).toLocaleDateString()}
@@ -101,20 +112,28 @@ const OrderManagementPage = () => {
                     ${order.totalPrice}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      order.status === "delivered" ? "bg-green-100 text-green-800" :
-                      order.status === "shipped" ? "bg-blue-100 text-blue-800" :
-                      order.status === "processing" ? "bg-yellow-100 text-yellow-800" :
-                      order.status === "cancelled" ? "bg-red-100 text-red-800" :
-                      "bg-gray-100 text-gray-800"
-                    }`}>
+                    <span
+                      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                        order.status === "delivered"
+                          ? "bg-green-100 text-green-800"
+                          : order.status === "shipped"
+                          ? "bg-blue-100 text-blue-800"
+                          : order.status === "processing"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : order.status === "cancelled"
+                          ? "bg-red-100 text-red-800"
+                          : "bg-gray-100 text-gray-800"
+                      }`}
+                    >
                       {order.status}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <select
                       value={order.status}
-                      onChange={(e) => handleStatusChange(order._id, e.target.value)}
+                      onChange={(e) =>
+                        handleStatusChange(order._id, e.target.value)
+                      }
                       className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
                     >
                       <option value="pending">Pending</option>

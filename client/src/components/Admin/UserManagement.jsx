@@ -15,7 +15,11 @@ const UserManagement = () => {
   const navigate = useNavigate();
 
   const { user } = useSelector((state) => state.auth);
-  const { users = [], loading, error } = useSelector((state) => state.admin) || {};
+  const {
+    users = [],
+    loading,
+    error,
+  } = useSelector((state) => state.admin) || {};
 
   useEffect(() => {
     if (!user) {
@@ -42,7 +46,7 @@ const UserManagement = () => {
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validate password length
     if (formData.password.length < 6) {
       toast.error("Password must be at least 6 characters long");
@@ -67,10 +71,10 @@ const UserManagement = () => {
     try {
       const result = await dispatch(updateUser({ userId, newRole })).unwrap();
       // Update the local state immediately
-      const updatedUsers = users.map(user => 
+      const updatedUsers = users.map((user) =>
         user._id === userId ? { ...user, role: newRole } : user
       );
-      dispatch({ type: 'admin/fetchUsers/fulfilled', payload: updatedUsers });
+      dispatch({ type: "admin/fetchUsers/fulfilled", payload: updatedUsers });
       toast.success("User role updated successfully");
     } catch (error) {
       toast.error(error || "Failed to update user role");
@@ -91,7 +95,7 @@ const UserManagement = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-xl">Loading users...</p>
+        <div className="md:ml-16 animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
       </div>
     );
   }
@@ -107,13 +111,15 @@ const UserManagement = () => {
   return (
     <div className="p-6">
       <h2 className="text-2xl font-bold mb-6">User Management</h2>
-      
+
       {/* Add User Form */}
       <div className="bg-white p-6 rounded-lg shadow-md mb-8">
         <h3 className="text-xl font-semibold mb-4">Add New User</h3>
         <form onSubmit={handleFormSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Username</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Username
+            </label>
             <input
               type="text"
               name="username"
@@ -124,7 +130,9 @@ const UserManagement = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Email</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Email
+            </label>
             <input
               type="email"
               name="email"
@@ -135,7 +143,9 @@ const UserManagement = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Password</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Password
+            </label>
             <input
               type="password"
               name="password"
@@ -148,7 +158,9 @@ const UserManagement = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Role</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Role
+            </label>
             <select
               name="role"
               value={formData.role}
@@ -191,12 +203,16 @@ const UserManagement = () => {
             {users && users.length > 0 ? (
               users.map((user) => (
                 <tr key={user._id}>
-                  <td className="px-6 py-4 whitespace-nowrap">{user.username}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {user.username}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap">{user.email}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <select
                       value={user.role}
-                      onChange={(e) => handleRoleChange(user._id, e.target.value)}
+                      onChange={(e) =>
+                        handleRoleChange(user._id, e.target.value)
+                      }
                       className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5"
                     >
                       <option value="admin">Admin</option>

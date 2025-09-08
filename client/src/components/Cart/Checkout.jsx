@@ -41,13 +41,25 @@ const Checkout = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validate shipping address
-    const requiredFields = ['firstname', 'lastname', 'address', 'city', 'postalCode', 'country', 'phone'];
-    const missingFields = requiredFields.filter(field => !shippingAddress[field]);
-    
+    const requiredFields = [
+      "firstname",
+      "lastname",
+      "address",
+      "city",
+      "postalCode",
+      "country",
+      "phone",
+    ];
+    const missingFields = requiredFields.filter(
+      (field) => !shippingAddress[field]
+    );
+
     if (missingFields.length > 0) {
-      toast.error(`Please fill in all required fields: ${missingFields.join(', ')}`);
+      toast.error(
+        `Please fill in all required fields: ${missingFields.join(", ")}`
+      );
       return;
     }
 
@@ -55,14 +67,14 @@ const Checkout = () => {
       // Create checkout session first
       const result = await dispatch(
         createCheckout({
-          CheckoutItems: cart.products.map(item => ({
+          CheckoutItems: cart.products.map((item) => ({
             productId: item.productId._id || item.productId,
             name: item.name,
             image: item.image,
             price: item.price,
             quantity: item.quantity,
             size: item.size,
-            color: item.color
+            color: item.color,
           })),
           shippingAddress: `${shippingAddress.firstname} ${shippingAddress.lastname}, ${shippingAddress.address}`,
           city: shippingAddress.city,
@@ -97,7 +109,8 @@ const Checkout = () => {
         return;
       }
 
-      const currentCheckoutId = checkoutId || localStorage.getItem("checkoutId");
+      const currentCheckoutId =
+        checkoutId || localStorage.getItem("checkoutId");
       if (!currentCheckoutId) {
         toast.error("Checkout session not found. Please try again.");
         return;
@@ -105,7 +118,9 @@ const Checkout = () => {
 
       // First finalize the checkout
       const checkoutResponse = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/checkout/${currentCheckoutId}/pay`,
+        `${
+          import.meta.env.VITE_BACKEND_URL
+        }/api/checkout/${currentCheckoutId}/pay`,
         {
           method: "PUT",
           headers: {
@@ -137,7 +152,7 @@ const Checkout = () => {
           image: item.image,
           price: item.price,
           size: item.size,
-          color: item.color
+          color: item.color,
         })),
         shippingAddress: {
           firstname: shippingAddress.firstname,
@@ -146,7 +161,7 @@ const Checkout = () => {
           city: shippingAddress.city,
           postalCode: shippingAddress.postalCode,
           country: shippingAddress.country,
-          phone: shippingAddress.phone
+          phone: shippingAddress.phone,
         },
         paymentMethod: "PayPal",
         totalPrice: cart.totalPrice,
@@ -159,13 +174,13 @@ const Checkout = () => {
 
       // Create the order
       const result = await dispatch(createOrder(orderData)).unwrap();
-      
+
       // Clear the cart from backend first
       await dispatch(clearCartFromBackend({ userId: user._id })).unwrap();
-      
+
       // Then clear the cart in Redux store and localStorage
       dispatch(clearCart());
-      
+
       // Clear the checkout ID from localStorage
       localStorage.removeItem("checkoutId");
 
@@ -177,7 +192,14 @@ const Checkout = () => {
     }
   };
 
-  if (loading) return <p>Loading cart...</p>;
+  if (loading)
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="absolute inset-0 bg-white bg-opacity-50 flex items-center justify-center z-10">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
+        </div>
+      </div>
+    );
   if (error) return <p>Error: {error}</p>;
   if (!cart || !cart.products || cart.products.length === 0) {
     return <p>Your cart is empty</p>;
@@ -193,7 +215,7 @@ const Checkout = () => {
           <label className="text-gray-600 text-lg block">Email</label>
           <input
             type="text"
-            value={user ? user.email:""}
+            value={user ? user.email : ""}
             className="border p-2 mb-2 w-full rounded"
             disabled={true}
           />
@@ -306,11 +328,11 @@ const Checkout = () => {
           ) : (
             <div className="mt-4">
               <button
-                type="button"
-                onClick={() => handlePaymentSuccess({ transactionId: `PAY-${Date.now()}` })}
-                className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 w-full"
+                type="submit"
+                disabled
+                className="bg-black text-lg font-semibold hover:bg-gray-800 w-full text-white py-3 rounded"
               >
-                Pay Now
+                Processing the payment
               </button>
             </div>
           )}

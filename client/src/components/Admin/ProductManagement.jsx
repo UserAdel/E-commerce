@@ -14,7 +14,11 @@ const ProductManagement = () => {
   const navigate = useNavigate();
 
   const { user } = useSelector((state) => state.auth);
-  const { products = [], loading, error } = useSelector((state) => state.adminProduct) || {};
+  const {
+    products = [],
+    loading,
+    error,
+  } = useSelector((state) => state.adminProduct) || {};
 
   const [formData, setFormData] = useState({
     name: "",
@@ -33,10 +37,7 @@ const ProductManagement = () => {
 
   const [editingProduct, setEditingProduct] = useState(null);
 
-  const categories = [
-    "Top Wear",
-    "Bottom Wear"
-  ];
+  const categories = ["Top Wear", "Bottom Wear"];
 
   const genderOptions = ["Men", "Women"];
 
@@ -70,17 +71,19 @@ const ProductManagement = () => {
       // Convert comma-separated strings to arrays
       const formDataToSubmit = {
         ...formData,
-        colors: formData.colors.split(',').map(color => color.trim()),
-        sizes: formData.sizes.split(',').map(size => size.trim()),
-        images: formData.image.split(',').map(url => ({
+        colors: formData.colors.split(",").map((color) => color.trim()),
+        sizes: formData.sizes.split(",").map((size) => size.trim()),
+        images: formData.image.split(",").map((url) => ({
           url: url.trim(),
-          altText: formData.name
+          altText: formData.name,
         })),
-        sku: formData.sku.trim()
+        sku: formData.sku.trim(),
       };
 
       if (editingProduct) {
-        await dispatch(updateProduct({ id: editingProduct._id, ...formDataToSubmit })).unwrap();
+        await dispatch(
+          updateProduct({ id: editingProduct._id, ...formDataToSubmit })
+        ).unwrap();
         toast.success("Product updated successfully");
       } else {
         await dispatch(addProduct(formDataToSubmit)).unwrap();
@@ -114,7 +117,7 @@ const ProductManagement = () => {
       price: product.price?.toString() || "",
       category: product.category || "",
       countInStock: product.countInStock?.toString() || "",
-      image: product.images?.map(img => img.url).join(", ") || "",
+      image: product.images?.map((img) => img.url).join(", ") || "",
       sku: product.sku || "",
       brand: product.brand || "",
       sizes: product.sizes?.join(",") || "",
@@ -126,13 +129,13 @@ const ProductManagement = () => {
       isPublished: product.isPublished || false,
       tag: product.tag?.join(",") || "",
       dimension: product.dimension || {},
-      weight: product.weight?.toString() || ""
+      weight: product.weight?.toString() || "",
     });
-    
+
     // Scroll to form
-    const formElement = document.getElementById('product-form');
+    const formElement = document.getElementById("product-form");
     if (formElement) {
-      formElement.scrollIntoView({ behavior: 'smooth' });
+      formElement.scrollIntoView({ behavior: "smooth" });
     }
   };
 
@@ -149,8 +152,8 @@ const ProductManagement = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-xl">Loading products...</p>
+      <div className=" min-h-screen flex items-center justify-center">
+        <div className="md:ml-16 animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
       </div>
     );
   }
@@ -166,7 +169,7 @@ const ProductManagement = () => {
   return (
     <div className="p-6">
       <h2 className="text-2xl font-bold mb-6">Product Management</h2>
-      
+
       {/* Add/Edit Product Form */}
       <div id="product-form" className="bg-white p-6 rounded-lg shadow-md mb-8">
         <h3 className="text-xl font-semibold mb-4">
@@ -174,7 +177,9 @@ const ProductManagement = () => {
         </h3>
         <form onSubmit={handleFormSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Name</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Name
+            </label>
             <input
               type="text"
               name="name"
@@ -186,7 +191,9 @@ const ProductManagement = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">SKU</label>
+            <label className="block text-sm font-medium text-gray-700">
+              SKU
+            </label>
             <input
               type="text"
               name="sku"
@@ -198,7 +205,9 @@ const ProductManagement = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Category</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Category
+            </label>
             <select
               name="category"
               value={formData.category}
@@ -215,7 +224,9 @@ const ProductManagement = () => {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Gender</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Gender
+            </label>
             <select
               name="gender"
               value={formData.gender}
@@ -230,7 +241,9 @@ const ProductManagement = () => {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Price</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Price
+            </label>
             <input
               type="number"
               name="price"
@@ -242,7 +255,9 @@ const ProductManagement = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Stock</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Stock
+            </label>
             <input
               type="number"
               name="countInStock"
@@ -254,7 +269,9 @@ const ProductManagement = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Colors (comma-separated)</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Colors (comma-separated)
+            </label>
             <input
               type="text"
               name="colors"
@@ -266,7 +283,9 @@ const ProductManagement = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Sizes (comma-separated)</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Sizes (comma-separated)
+            </label>
             <input
               type="text"
               name="sizes"
@@ -278,7 +297,9 @@ const ProductManagement = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Material</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Material
+            </label>
             <input
               type="text"
               name="material"
@@ -289,7 +310,9 @@ const ProductManagement = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Brand</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Brand
+            </label>
             <input
               type="text"
               name="brand"
@@ -300,7 +323,9 @@ const ProductManagement = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Description</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Description
+            </label>
             <textarea
               name="description"
               value={formData.description}
@@ -311,7 +336,9 @@ const ProductManagement = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Image URLs (comma-separated)</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Image URLs (comma-separated)
+            </label>
             <input
               type="text"
               name="image"
@@ -391,9 +418,15 @@ const ProductManagement = () => {
                       className="h-10 w-10 object-cover rounded"
                     />
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">{product.name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">${product.price}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{product.countInStock || product.stock}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {product.name}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    ${product.price}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {product.countInStock || product.stock}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap space-x-2">
                     <button
                       onClick={() => handleEdit(product)}
